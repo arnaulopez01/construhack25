@@ -31,6 +31,9 @@
             <label class="layer-option"><input type="checkbox" id="population-points-checkbox"> Población (Puntos)</label>
             <label class="layer-option"><input type="checkbox" id="population-heatmap-checkbox"> Población (Calor)</label>
             <hr>
+            <h4>Sensores IoT</h4>
+            <label class="layer-option"><input type="checkbox" id="iot-checkbox"> Calidad Aire (Semáforo)</label>
+            <hr>
             <h4>Entorno</h4>
             <label class="layer-option"><input type="checkbox" id="terrain-3d-checkbox"> Relieve 3D (DTM)</label>
             <label class="layer-option"><input type="checkbox" id="catastro-checkbox"> Catastro (WMS)</label>
@@ -40,6 +43,11 @@
         <div id="building-legend" class="map-overlay legend" style="display: none;">
             <h4>Uso del Edificio</h4>
             <div id="legend-content"></div>
+        </div>
+
+        <div id="iot-legend" class="map-overlay legend-iot" style="display: none;">
+            <h4>Calidad del Aire</h4>
+            <div id="iot-legend-content"></div>
         </div>
 
         <!-- Controles Mapa de Calor -->

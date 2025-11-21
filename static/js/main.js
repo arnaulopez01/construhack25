@@ -332,4 +332,182 @@ els.cameraBtn.addEventListener('click', () => {
     map.triggerRepaint();
 });
 
+// ==================================================================
+// 6. LÓGICA IOT (MULTIPARÁMETRO)
+// ==================================================================
+
+// 1. Configuración de colores y niveles
+const IOT_LEVELS = [
+    { value: 0, color: '#4CAF50', label: 'Buena' },    // Verde
+    { value: 1, color: '#FF9800', label: 'Regular' },  // Naranja
+    { value: 2, color: '#F44336', label: 'Mala' }      // Rojo
+];
+
+// 2. Umbrales de Calidad del Aire (Límites para considerar Regular o Mala)
+// Si supera 'regular', es naranja. Si supera 'bad', es rojo.
+const IOT_THRESHOLDS = {
+    'NO2':   { regular: 40,  bad: 90 },
+    'O3':    { regular: 80,  bad: 120 },
+    'PM10':  { regular: 20,  bad: 40 },
+    'PM2_5': { regular: 10,  bad: 20 },
+    'PM1':   { regular: 10,  bad: 25 }, // Estimado
+    'CO2':   { regular: 1000, bad: 1500 }
+};
+
+const iotEls = {
+    check: document.getElementById('iot-checkbox'),
+    legend: document.getElementById('iot-legend'),
+    legendContent: document.getElementById('iot-legend-content')
+};
+
+// Función auxiliar para calcular el peor estado de un sensor
+function calculateSensorStatus(props) {
+    let maxLevel = 0; // 0: Buena, 1: Regular, 2: Mala
+
+    // Recorremos cada contaminante definido en los umbrales
+    Object.keys(IOT_THRESHOLDS).forEach(key => {
+        const val = props[key];
+        if (val !== undefined && val !== null) {
+            const limits = IOT_THRESHOLDS[key];
+            
+            let currentLevel = 0;
+            if (val >= limits.bad) {
+                currentLevel = 2;
+            } else if (val >= limits.regular) {
+                currentLevel = 1;
+            }
+
+            // Nos quedamos siempre con el peor escenario encontrado
+            if (currentLevel > maxLevel) {
+                maxLevel = currentLevel;
+            }
+        }
+    });
+    return maxLevel;
+}
+
+async function loadIoTData() {
+    if (map.getSource('iot-source')) return;
+
+    try {
+        // 1. Descargamos el GeoJSON manualmente
+        const response = await fetch('static/data/iot.geojson');
+        const data = await response.json();
+
+        // 2. Procesamos cada punto para añadirle la propiedad "qualityLevel"
+        data.features.forEach(feature => {
+            feature.properties.qualityLevel = calculateSensorStatus(feature.properties);
+        });
+
+        // 3. Añadimos la fuente con los datos ya calculados
+        map.addSource('iot-source', { 'type': 'geojson', 'data': data });
+
+        // 4. Añadimos la capa usando esa nueva propiedad para el color
+        map.addLayer({
+            'id': 'iot-layer',
+            'type': 'circle',
+            'source': 'iot-source',
+            'layout': { 'visibility': 'none' },
+            'paint': {
+                'circle-radius': 10,
+                'circle-color': [
+                    'match', ['get', 'qualityLevel'],
+                    0, IOT_LEVELS[0].color, // Si es 0 -> Verde
+                    1, IOT_LEVELS[1].color, // Si es 1 -> Naranja
+                    2, IOT_LEVELS[2].color, // Si es 2 -> Rojo
+                    '#ccc' // Por defecto gris
+                ],
+                'circle-stroke-width': 2,
+                'circle-stroke-color': '#fff',
+                'circle-opacity': 0.9
+            }
+        });
+
+        setupIoTInteractions();
+        updateIoTLegend();
+
+        // Activamos la visualización si el checkbox estaba marcado mientras cargaba
+        if (iotEls.check.checked) {
+            map.setLayoutProperty('iot-layer', 'visibility', 'visible');
+            iotEls.legend.style.display = 'block';
+        }
+
+    } catch (err) {
+        console.error("Error cargando datos IoT:", err);
+    }
+}
+
+function setupIoTInteractions() {
+    // Cursor pointer
+    map.on('mouseenter', 'iot-layer', () => map.getCanvas().style.cursor = 'pointer');
+    map.on('mouseleave', 'iot-layer', () => map.getCanvas().style.cursor = '');
+
+    // Popup
+    map.on('click', 'iot-layer', (e) => {
+        const p = e.features[0].properties;
+        const coords = e.features[0].geometry.coordinates.slice();
+
+        // Lista de parámetros a mostrar en el popup
+        const params = ['NO2', 'O3', 'PM10', 'PM2_5', 'PM1', 'CO2'];
+        
+        let rows = params.map(k => {
+            if (p[k] !== undefined) {
+                // Comprobamos si este valor específico es malo para marcarlo en negrita/color
+                const limits = IOT_THRESHOLDS[k];
+                let colorStyle = '';
+                if (limits && p[k] >= limits.bad) colorStyle = 'color:#F44336; font-weight:bold;';
+                else if (limits && p[k] >= limits.regular) colorStyle = 'color:#FF9800; font-weight:bold;';
+
+                return `<div style="display:flex; justify-content:space-between; border-bottom:1px solid #eee; padding:3px 0;">
+                          <span>${k}:</span> 
+                          <span style="${colorStyle}">${p[k]} <small style="color:#999; font-weight:normal;">${p['unidad_'+k] || ''}</small></span>
+                        </div>`;
+            }
+            return '';
+        }).join('');
+
+        const html = `
+            <div class="popup-header" style="background:#333; color:white; padding:8px;">
+                <i class="fa-solid fa-circle-nodes"></i> ${p.nombre || 'Sensor'}
+            </div>
+            <div class="popup-body" style="padding:10px;">
+                <div style="margin-bottom:10px; font-size:0.85em; color:#777;">
+                    <i class="fa-regular fa-clock"></i> ${p.fecha_medicion}
+                </div>
+                ${rows}
+            </div>
+        `;
+
+        new maplibregl.Popup({ className: 'iot-popup', closeButton: true, maxWidth: '300px' })
+            .setLngLat(coords)
+            .setHTML(html)
+            .addTo(map);
+    });
+}
+
+function updateIoTLegend() {
+    let html = '';
+    IOT_LEVELS.forEach(item => {
+        html += `<div class="legend-item" style="display:flex; align-items:center; margin-bottom:5px;">
+                    <span style="background:${item.color}; width:14px; height:14px; border-radius:50%; display:inline-block; margin-right:8px; border:1px solid rgba(0,0,0,0.1);"></span>
+                    <span style="font-size:13px;">${item.label}</span>
+                 </div>`;
+    });
+    html += `<div style="margin-top:8px; font-size:11px; color:#666; font-style:italic;">*Color según el peor indicador detectado.</div>`
+    iotEls.legendContent.innerHTML = html;
+}
+
+// Event Listener para el checkbox
+iotEls.check.addEventListener('change', (e) => {
+    if (!map.getSource('iot-source')) {
+        loadIoTData(); // Carga la primera vez
+    } else {
+        // Si ya está cargado, solo cambiamos visibilidad
+        if (map.getLayer('iot-layer')) {
+            map.setLayoutProperty('iot-layer', 'visibility', e.target.checked ? 'visible' : 'none');
+            iotEls.legend.style.display = e.target.checked ? 'block' : 'none';
+        }
+    }
+});
+
 initializeMap();

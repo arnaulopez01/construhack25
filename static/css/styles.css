@@ -45,6 +45,11 @@ hr { border: 0; border-top: 1px solid #eee; margin: 12px 0; }
 .legend-item { display: flex; align-items: center; margin-bottom: 6px; font-size: 12px; color: #444; }
 .legend-color { width: 16px; height: 16px; margin-right: 10px; border-radius: 4px; }
 
+.legend-iot { bottom: 30px; left: 20px; width: 180px; }
+.legend-iot h4 { margin: 0 0 12px; font-size: 13px; font-weight: bold; }
+.legend-iot-item { display: flex; align-items: center; margin-bottom: 6px; font-size: 12px; color: #444; }
+.legend-iot-color { width: 16px; height: 16px; margin-right: 10px; border-radius: 4px; }
+
 /* Controles Heatmap */
 .controls { bottom: 30px; left: 20px; width: 220px; }
 .controls h4 { margin: 0 0 12px; font-size: 13px; font-weight: bold; }
