@@ -142,7 +142,28 @@ async function setupCoreLayers() {
     map.addSource('catastro-wms', { 'type': 'raster', 'tiles': ['https://ovc.catastro.meh.es/Cartografia/WMS/ServidorWMS.aspx?bbox={bbox-epsg-3857}&format=image/png&service=WMS&version=1.1.1&request=GetMap&srs=EPSG:3857&width=256&height=256&layers=Catastro&transparent=true'], 'tileSize': 256 });
     map.addLayer({ 'id': 'catastro-layer', 'type': 'raster', 'source': 'catastro-wms', 'layout': { 'visibility': 'none' } });
 
-    // B. EDIFICIOS
+    // ==============================================================================
+    // C. POBLACIÓN (MOVIDO AQUÍ ARRIBA PARA QUE QUEDE DEBAJO DE LOS EDIFICIOS)
+    // ==============================================================================
+    map.addSource('poblacion-source', { 'type': 'geojson', 'data': 'static/data/poblacio.geojson' });
+    
+    map.addLayer({
+        'id': 'poblacion-heatmap', 'type': 'heatmap', 'source': 'poblacion-source', 'layout': { 'visibility': 'none' },
+        'paint': {
+            'heatmap-weight': ['interpolate', ['linear'], ['get', 'estimacioPoblacio'], 0, 0, 5, 1],
+            'heatmap-radius': 20, 'heatmap-opacity': 0.8,
+            'heatmap-color': ['interpolate', ['linear'], ['heatmap-density'], 0, 'rgba(33,102,172,0)', 0.2, 'rgb(103,169,207)', 0.4, 'rgb(209,229,240)', 0.6, 'rgb(253,219,199)', 0.8, 'rgb(239,138,98)', 1, 'rgb(178,24,43)']
+        }
+    });
+
+    map.addLayer({
+        'id': 'poblacion-points', 'type': 'circle', 'source': 'poblacion-source', 'layout': { 'visibility': 'none' },
+        'paint': { 'circle-radius': 6, 'circle-color': '#ffffff', 'circle-stroke-color': '#e31a1c', 'circle-stroke-width': 2 }
+    });
+
+    // ==============================================================================
+    // B. EDIFICIOS (AHORA VA DESPUÉS, PARA QUE SE PINTE ENCIMA DE LO ANTERIOR)
+    // ==============================================================================
     proj4.defs("EPSG:25831","+proj=utm +zone=31 +ellps=GRS80 +units=m +no_defs");
     try {
         const response = await fetch('static/data/edificis.geojson');
@@ -178,23 +199,6 @@ async function setupCoreLayers() {
         setupBuildingInteractions();
 
     } catch (err) { console.error("Error Edificios:", err); }
-
-    // C. POBLACIÓN
-    map.addSource('poblacion-source', { 'type': 'geojson', 'data': 'static/data/poblacio.geojson' });
-    
-    map.addLayer({
-        'id': 'poblacion-heatmap', 'type': 'heatmap', 'source': 'poblacion-source', 'layout': { 'visibility': 'none' },
-        'paint': {
-            'heatmap-weight': ['interpolate', ['linear'], ['get', 'estimacioPoblacio'], 0, 0, 5, 1],
-            'heatmap-radius': 20, 'heatmap-opacity': 0.8,
-            'heatmap-color': ['interpolate', ['linear'], ['heatmap-density'], 0, 'rgba(33,102,172,0)', 0.2, 'rgb(103,169,207)', 0.4, 'rgb(209,229,240)', 0.6, 'rgb(253,219,199)', 0.8, 'rgb(239,138,98)', 1, 'rgb(178,24,43)']
-        }
-    });
-
-    map.addLayer({
-        'id': 'poblacion-points', 'type': 'circle', 'source': 'poblacion-source', 'layout': { 'visibility': 'none' },
-        'paint': { 'circle-radius': 6, 'circle-color': '#ffffff', 'circle-stroke-color': '#e31a1c', 'circle-stroke-width': 2 }
-    });
 }
 
 // ==================================================================
@@ -222,15 +226,17 @@ async function loadObrasData() {
         Object.keys(WORKS_COLORS).forEach(k => colorExp.push(k, WORKS_COLORS[k]));
         colorExp.push('#999');
 
+        // CAMBIO AQUÍ: Añadido 'edificios-layer' como segundo argumento
         map.addLayer({
             'id': 'obras-fill', 'type': 'fill', 'source': 'obras-source', 'layout': { 'visibility': 'visible' },
             'paint': { 'fill-color': colorExp, 'fill-opacity': 0.6 }
-        });
+        }, 'edificios-layer'); 
 
+        // CAMBIO AQUÍ: Añadido 'edificios-layer' como segundo argumento
         map.addLayer({
             'id': 'obras-line', 'type': 'line', 'source': 'obras-source', 'layout': { 'visibility': 'visible' },
             'paint': { 'line-color': colorExp, 'line-width': 2, 'line-dasharray': [2, 2] }
-        });
+        }, 'edificios-layer');
 
         setupObrasInteractions();
         buildObrasLegend();
@@ -459,26 +465,58 @@ async function sendMessage() {
 }
 
 // ==================================================================
-// 9. FUNCIÓN PARA PINTAR LO QUE DICE GEMINI
+// 9. FUNCIÓN PARA PINTAR RESULTADOS IA (CON ESTILO ORIGINAL)
 // ==================================================================
 
 function handleGeminiMapUpdate(mapData) {
     console.log("🗺️ Actualizando mapa con datos de IA...", mapData);
 
-    // 1. LIMPIEZA: Si ya hay capas de una consulta anterior, las borramos
-    // (Importante: Borrar capas antes que las fuentes)
+    // 1. LIMPIEZA DE CAPAS ANTERIORES
     if (map.getLayer('gemini-line')) map.removeLayer('gemini-line');
     if (map.getLayer('gemini-highlight')) map.removeLayer('gemini-highlight');
-    
     if (map.getSource('gemini-buffer-source')) map.removeSource('gemini-buffer-source');
     if (map.getSource('gemini-edificios-source')) map.removeSource('gemini-edificios-source');
 
-    // 2. PINTAR BUFFER (Línea Roja Discontinua)
-    if (mapData.layers && mapData.layers.buffer) {
-        map.addSource('gemini-buffer-source', { 
-            type: 'geojson', 
-            data: mapData.layers.buffer 
+    // 2. PREPARAR ESTILOS (CLONAR EL ORIGINAL)
+    // Por defecto (fallback) usamos dorado y 20m si algo falla
+    let colorStyle = '#FFD700'; 
+    let heightStyle = 20;       
+
+    // Intentamos "robar" el estilo exacto de la capa original 'edificios-layer'
+    // Así mantenemos los colores por uso y las alturas reales.
+    if (map.getLayer('edificios-layer')) {
+        colorStyle = map.getPaintProperty('edificios-layer', 'fill-extrusion-color');
+        heightStyle = map.getPaintProperty('edificios-layer', 'fill-extrusion-height');
+        
+        // 3. APAGAR CAPA GENERAL (Aislamiento)
+        map.setLayoutProperty('edificios-layer', 'visibility', 'none');
+        
+        // Actualizar UI (checkbox y leyenda)
+        const buildCheck = document.getElementById('buildings-checkbox');
+        if (buildCheck) buildCheck.checked = false;
+        document.getElementById('building-legend').style.display = 'none';
+    }
+
+    // 4. AÑADIR EDIFICIOS FILTRADOS (Manteniendo estilo original)
+    if (mapData.layers && mapData.layers.edificios) {
+        map.addSource('gemini-edificios-source', { type: 'geojson', data: mapData.layers.edificios });
+
+        map.addLayer({
+            'id': 'gemini-highlight',
+            'type': 'fill-extrusion', 
+            'source': 'gemini-edificios-source',
+            'paint': {
+                'fill-extrusion-color': colorStyle,   // <--- Aquí aplicamos el estilo copiado
+                'fill-extrusion-height': heightStyle, // <--- Aquí aplicamos la altura copiada
+                'fill-extrusion-opacity': 1,
+                'fill-extrusion-base': 0
+            }
         });
+    }
+
+    // 5. AÑADIR BUFFER (Línea roja debajo de los edificios)
+    if (mapData.layers && mapData.layers.buffer) {
+        map.addSource('gemini-buffer-source', { type: 'geojson', data: mapData.layers.buffer });
         
         map.addLayer({
             'id': 'gemini-line',
@@ -486,40 +524,16 @@ function handleGeminiMapUpdate(mapData) {
             'source': 'gemini-buffer-source',
             'layout': { 'line-join': 'round', 'line-cap': 'round' },
             'paint': {
-                'line-color': '#FF0000', // Rojo intenso
+                'line-color': '#FF3333', 
                 'line-width': 4,
-                'line-dasharray': [2, 2] // Punteado
+                'line-dasharray': [2, 2]
             }
-        });
+        }, 'gemini-highlight'); // Ponemos la línea DEBAJO de los edificios destacados
     }
 
-    // 3. PINTAR EDIFICIOS AFECTADOS (Resaltado Amarillo 3D)
-    if (mapData.layers && mapData.layers.edificios) {
-        map.addSource('gemini-edificios-source', { 
-            type: 'geojson', 
-            data: mapData.layers.edificios 
-        });
-
-        map.addLayer({
-            'id': 'gemini-highlight',
-            'type': 'fill-extrusion', 
-            'source': 'gemini-edificios-source',
-            'paint': {
-                'fill-extrusion-color': '#FFD700', // Dorado / Amarillo
-                'fill-extrusion-height': 25,       // Altura fija para que destaquen
-                'fill-extrusion-opacity': 0.9,
-                'fill-extrusion-base': 0
-            }
-        });
-    }
-
-    // 4. HACER ZOOM A LA ZONA (FlyTo)
+    // 6. ZOOM
     if (mapData.bounds) {
-        map.fitBounds(mapData.bounds, {
-            padding: 100,  // Margen alrededor para que no quede pegado al borde
-            maxZoom: 18,
-            duration: 2000 // Animación suave de 2 segundos
-        });
+        map.fitBounds(mapData.bounds, { padding: 150, maxZoom: 18, duration: 2000 });
     }
 }
 
