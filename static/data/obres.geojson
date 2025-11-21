@@ -1,5 +1,12 @@
 {
   "type": "FeatureCollection",
+  "name": "Obras_Municipales_Viladecans",
+  "crs": {
+    "type": "name",
+    "properties": {
+      "name": "urn:ogc:def:crs:OGC:1.3:CRS84"
+    }
+  },
   "features": [
     {
       "type": "Feature",
@@ -7,30 +14,31 @@
         "type": "Polygon",
         "coordinates": [
           [
-            [2.0180, 41.3198],
-            [2.0182, 41.3190],
-            [2.0188, 41.3188],
-            [2.0195, 41.3195],
-            [2.0190, 41.3201],
-            [2.0180, 41.3198]
+            [2.0184775497726704, 41.31925924636912],
+            [2.0190218607885293, 41.318762123533546],
+            [2.0208035912608326, 41.31721578315275],
+            [2.020380191751773, 41.31701207953831],
+            [2.02017070294626, 41.31747102193994],
+            [2.018269949258078, 41.31908124277993],
+            [2.0184775497726704, 41.31925924636912]
           ]
         ]
       },
       "properties": {
         "id_obra": "OBRA_Rambla_Modolell",
         "nombre": "Renovación Urbana Rambla Modolell",
-        "barrio": "Barri Antic / Mercat",
+        "barrio": "Barri Antic",
         "expediente_detalle": {
           "expediente_numero": "OM/2025/0045",
           "promotor": "Administración Municipal (Infraestructuras)",
           "tipo_licencia": "Obra Pública Mayor (Urbanización)",
-          "ambito": "Reforma integral del tramo central de la Rambla, entre C/ Major y Av. Catalunya.",
+          "ambito": "Reforma integral del tramo central de la Rambla.",
           "descripcion": "Renovación de pavimento, ampliación de aceras y sistema de saneamiento.",
           "plazo_ejecucion_dias": 120,
           "presupuesto_ejecucion": 1250000.00,
-          "materiales_clave": "Granito pulido, Asfalto fonoreductor, Tuberías de PVC.",
+          "materiales_clave": "Granito pulido, Asfalto fonoreductor.",
           "fecha_concesion_licencia": "2025-09-01",
-          "estado_expediente": "En Ejecución"
+          "estado_expediente": "Acabada" 
         }
       }
     },
@@ -40,12 +48,15 @@
         "type": "Polygon",
         "coordinates": [
           [
-            [2.0210, 41.3155],
-            [2.0214, 41.3148],
-            [2.0225, 41.3142],
-            [2.0230, 41.3149],
-            [2.0226, 41.3158],
-            [2.0210, 41.3155]
+            [2.021863247510075, 41.31516054650189],
+            [2.0221322974800375, 41.315043171321534],
+            [2.022204387305817, 41.3149133423179],
+            [2.0223196615502625, 41.31482495435523],
+            [2.0223402435599813, 41.314671194571915],
+            [2.022256224427534, 41.31459491534425],
+            [2.022027401715318, 41.31462400651808],
+            [2.0217172957395326, 41.315003831834545],
+            [2.021863247510075, 41.31516054650189]
           ]
         ]
       },
@@ -57,13 +68,45 @@
           "expediente_numero": "OM/2024/0210",
           "promotor": "Promotora Habitat S.L.",
           "tipo_licencia": "Obra Mayor (Edificación Residencial)",
-          "ambito": "Parcela 3B, esquina Pl. Saint Herblain. Construcción de 20 viviendas y ático.",
-          "descripcion": "Construcción de edificio plurifamiliar de planta baja + 4, con aparcamiento subterráneo. Uso de elementos prefabricados.",
+          "ambito": "Construcción en Parcela 3B, esquina Pl. Saint Herblain.",
+          "descripcion": "Edificio plurifamiliar de planta baja + 4, con aparcamiento subterráneo.",
           "plazo_ejecucion_dias": 480,
           "presupuesto_ejecucion": 3800000.00,
           "materiales_clave": "Hormigón armado, Ladrillo cerámico, Aislamiento térmico SATE.",
           "fecha_concesion_licencia": "2024-11-20",
-          "estado_expediente": "En Ejecución (Estructura)"
+          "estado_expediente": "En Progreso" 
+        }
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [2.0276704889440524, 41.32265366510488],
+            [2.028134879630932, 41.32294493709378],
+            [2.0287829459043, 41.32261847402845],
+            [2.028256433036444, 41.32226168355212],
+            [2.0276704889440524, 41.32265366510488]
+          ]
+        ]
+      },
+      "properties": {
+        "id_obra": "OBRA_Barri_de_Llevant",
+        "nombre": "Vivienda Social Barri de Llevant",
+        "barrio": "Barri de Llevant",
+        "expediente_detalle": {
+          "expediente_numero": "OE/2026/0010",
+          "promotor": "Consorcio Metropolitano de Vivienda",
+          "tipo_licencia": "Obra Mayor (Vivienda Social Protegida)",
+          "ambito": "Solar en la Avinguda de la Generalitat.",
+          "descripcion": "Construcción de edificio de consumo energético casi nulo (NZEB) con certificación Passivhaus.",
+          "plazo_ejecucion_dias": 550,
+          "presupuesto_ejecucion": 5500000.00,
+          "materiales_clave": "Madera contralaminada (CLT) y fachada ventilada.",
+          "fecha_concesion_licencia": "2026-03-01",
+          "estado_expediente": "A Futuro"
         }
       }
     }
