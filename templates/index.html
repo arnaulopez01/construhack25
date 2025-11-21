@@ -83,6 +83,18 @@
 
     </div>
 
+    <div id="chat-overlay" class="chat-overlay" style="display: none;">
+        <div class="chat-header">
+            <span><i class="fa-solid fa-robot"></i> Respuesta Gemini</span>
+
+            <button id="close-chat" onclick="document.getElementById('chat-overlay').style.display='none'">
+                <i class="fa-solid fa-xmark"></i>
+            </button>
+        </div>
+        <div id="chat-content" class="chat-content">
+        </div>
+    </div>
+
     <script src="https://unpkg.com/maplibre-gl@3.6.2/dist/maplibre-gl.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/proj4js/2.9.0/proj4.js"></script>
 
@@ -95,5 +107,6 @@
         };
     </script>
     <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+
 </body>
 </html>

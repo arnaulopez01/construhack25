@@ -411,5 +411,116 @@ document.getElementById('heatmap-intensity').addEventListener('input', e => map.
 document.getElementById('toggle-3d').addEventListener('click', () => { const p=map.getPitch(); map.easeTo({pitch:p>0?0:60,bearing:p>0?0:-20}); });
 document.getElementById('camera-button').addEventListener('click', () => { map.once('render', () => map.getCanvas().toBlob(b => { const a=document.createElement('a');a.href=URL.createObjectURL(b);a.download='mapa.png';a.click(); })); map.triggerRepaint(); });
 
-// START
+// ==================================================================
+// 8. INTEGRACIÓN GEMINI CHAT (ACTUALIZADO)
+// ==================================================================
+
+const chatInput = document.getElementById('gemini-prompt');
+const chatBtn = document.getElementById('btn-send-prompt');
+const chatOverlay = document.getElementById('chat-overlay');
+const chatContent = document.getElementById('chat-content');
+
+chatBtn.addEventListener('click', sendMessage);
+chatInput.addEventListener('keypress', (e) => { if(e.key === 'Enter') sendMessage(); });
+
+async function sendMessage() {
+    const text = chatInput.value.trim();
+    if (!text) return;
+
+    // Feedback visual en el botón
+    chatBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i>';
+    
+    try {
+        const response = await fetch('/api/chat', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ message: text })
+        });
+        
+        const data = await response.json();
+        
+        // 1. MOSTRAR RESPUESTA EN EL OVERLAY (No alert)
+        chatContent.innerHTML = data.response; // Permite HTML (negritas, saltos)
+        chatOverlay.style.display = 'block';
+
+        // 2. Ejecutar acciones en el mapa
+        if (data.action === 'update_map' && data.data) {
+            handleGeminiMapUpdate(data.data);
+        }
+
+    } catch (err) {
+        console.error("Error Gemini:", err);
+        chatContent.innerHTML = "⚠️ Error conectando con el asistente.";
+        chatOverlay.style.display = 'block';
+    } finally {
+        chatBtn.innerHTML = '<i class="fa-solid fa-paper-plane"></i>';
+        chatInput.value = '';
+    }
+}
+
+// ==================================================================
+// 9. FUNCIÓN PARA PINTAR LO QUE DICE GEMINI
+// ==================================================================
+
+function handleGeminiMapUpdate(mapData) {
+    console.log("🗺️ Actualizando mapa con datos de IA...", mapData);
+
+    // 1. LIMPIEZA: Si ya hay capas de una consulta anterior, las borramos
+    // (Importante: Borrar capas antes que las fuentes)
+    if (map.getLayer('gemini-line')) map.removeLayer('gemini-line');
+    if (map.getLayer('gemini-highlight')) map.removeLayer('gemini-highlight');
+    
+    if (map.getSource('gemini-buffer-source')) map.removeSource('gemini-buffer-source');
+    if (map.getSource('gemini-edificios-source')) map.removeSource('gemini-edificios-source');
+
+    // 2. PINTAR BUFFER (Línea Roja Discontinua)
+    if (mapData.layers && mapData.layers.buffer) {
+        map.addSource('gemini-buffer-source', { 
+            type: 'geojson', 
+            data: mapData.layers.buffer 
+        });
+        
+        map.addLayer({
+            'id': 'gemini-line',
+            'type': 'line',
+            'source': 'gemini-buffer-source',
+            'layout': { 'line-join': 'round', 'line-cap': 'round' },
+            'paint': {
+                'line-color': '#FF0000', // Rojo intenso
+                'line-width': 4,
+                'line-dasharray': [2, 2] // Punteado
+            }
+        });
+    }
+
+    // 3. PINTAR EDIFICIOS AFECTADOS (Resaltado Amarillo 3D)
+    if (mapData.layers && mapData.layers.edificios) {
+        map.addSource('gemini-edificios-source', { 
+            type: 'geojson', 
+            data: mapData.layers.edificios 
+        });
+
+        map.addLayer({
+            'id': 'gemini-highlight',
+            'type': 'fill-extrusion', 
+            'source': 'gemini-edificios-source',
+            'paint': {
+                'fill-extrusion-color': '#FFD700', // Dorado / Amarillo
+                'fill-extrusion-height': 25,       // Altura fija para que destaquen
+                'fill-extrusion-opacity': 0.9,
+                'fill-extrusion-base': 0
+            }
+        });
+    }
+
+    // 4. HACER ZOOM A LA ZONA (FlyTo)
+    if (mapData.bounds) {
+        map.fitBounds(mapData.bounds, {
+            padding: 100,  // Margen alrededor para que no quede pegado al borde
+            maxZoom: 18,
+            duration: 2000 // Animación suave de 2 segundos
+        });
+    }
+}
+
 initializeMap();
