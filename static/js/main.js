@@ -510,4 +510,145 @@ iotEls.check.addEventListener('change', (e) => {
     }
 });
 
+// ==================================================================
+// 7. LÓGICA OBRAS (Polígonos)
+// ==================================================================
+
+const obrasEls = {
+    check: document.getElementById('obras-checkbox')
+};
+
+async function loadObrasData() {
+    if (map.getSource('obras-source')) return;
+
+    try {
+        // 1. Cargar datos
+        const response = await fetch('/static/data/obres.geojson');
+        const data = await response.json();
+
+        map.addSource('obras-source', { 'type': 'geojson', 'data': data });
+
+        // 2. Determinar posición de la capa (Debajo de IoT si existe)
+        // Buscamos si existe la capa 'iot-layer' para insertar las obras ANTES (debajo) de ella.
+        // Si no existe, intentamos ponerla encima de los edificios, o al final si no hay nada más.
+        let beforeLayerId = undefined;
+        if (map.getLayer('iot-layer')) {
+            beforeLayerId = 'iot-layer';
+        } else if (map.getLayer('poblacion-points')) {
+            beforeLayerId = 'poblacion-points';
+        }
+
+        // 3. Capa de Relleno (Fill) - Naranja semitransparente
+        map.addLayer({
+            'id': 'obras-fill',
+            'type': 'fill',
+            'source': 'obras-source',
+            'layout': { 'visibility': 'none' },
+            'paint': {
+                'fill-color': '#e67e22', // Color Naranja Construcción
+                'fill-opacity': 0.4
+            }
+        }, beforeLayerId);
+
+        // 4. Capa de Línea (Outline) - Discontinua
+        map.addLayer({
+            'id': 'obras-line',
+            'type': 'line',
+            'source': 'obras-source',
+            'layout': { 'visibility': 'none' },
+            'paint': {
+                'line-color': '#d35400', // Naranja más oscuro
+                'line-width': 2,
+                'line-dasharray': [2, 2] // Línea discontinua
+            }
+        }, beforeLayerId);
+
+        setupObrasInteractions();
+
+        // Activar si el checkbox ya estaba marcado
+        if (obrasEls.check.checked) {
+            toggleObrasLayer(true);
+        }
+
+    } catch (err) { console.error("Error cargando Obras:", err); }
+}
+
+function setupObrasInteractions() {
+    // Cursor pointer
+    map.on('mouseenter', 'obras-fill', () => map.getCanvas().style.cursor = 'pointer');
+    map.on('mouseleave', 'obras-fill', () => map.getCanvas().style.cursor = '');
+
+    // Popup
+    map.on('click', 'obras-fill', (e) => {
+        const props = e.features[0].properties;
+        
+        // NOTA IMPORTANTE: MapLibre a veces convierte objetos anidados en strings al procesar GeoJSON.
+        // Parseamos 'expediente_detalle' si viene como texto, o lo usamos directo si es objeto.
+        let exp = props.expediente_detalle;
+        if (typeof exp === 'string') {
+            try { exp = JSON.parse(exp); } catch(e) { exp = {}; }
+        }
+
+        // Formateador de moneda
+        const formatMoney = (val) => {
+            return new Intl.NumberFormat('es-ES', { style: 'currency', currency: 'EUR' }).format(val);
+        };
+
+        const html = `
+            <div class="popup-header" style="background: #d35400; color: white;">
+                <i class="fa-solid fa-trowel-bricks"></i> ${props.nombre}
+            </div>
+            <div class="popup-body">
+                <div style="margin-bottom: 10px; font-size: 13px; color: #666;">
+                    <strong>${props.barrio}</strong>
+                </div>
+                
+                <div class="popup-row">
+                    <span class="popup-label">Estado:</span>
+                    <span class="popup-value" style="color: #d35400; font-weight: bold;">${exp.estado_expediente || '-'}</span>
+                </div>
+                <div class="popup-row">
+                    <span class="popup-label">Presupuesto:</span>
+                    <span class="popup-value">${exp.presupuesto_ejecucion ? formatMoney(exp.presupuesto_ejecucion) : '-'}</span>
+                </div>
+                <div class="popup-row">
+                    <span class="popup-label">Fin Previsto:</span>
+                    <span class="popup-value">${exp.plazo_ejecucion_dias} días</span>
+                </div>
+                
+                <hr style="margin: 5px 0; border: 0; border-top: 1px solid #eee;">
+                
+                <div style="font-size: 11px; color: #555; line-height: 1.4;">
+                    <strong>Descripción:</strong><br>
+                    ${exp.descripcion || 'Sin descripción'}
+                </div>
+                
+                <div style="margin-top:5px; font-size: 10px; color: #999;">
+                    Ref: ${exp.expediente_numero}
+                </div>
+            </div>
+        `;
+
+        new maplibregl.Popup({ className: 'custom-popup', closeButton: true, maxWidth: '320px' })
+            .setLngLat(e.lngLat)
+            .setHTML(html)
+            .addTo(map);
+    });
+}
+
+function toggleObrasLayer(visible) {
+    const visibility = visible ? 'visible' : 'none';
+    if (map.getLayer('obras-fill')) map.setLayoutProperty('obras-fill', 'visibility', visibility);
+    if (map.getLayer('obras-line')) map.setLayoutProperty('obras-line', 'visibility', visibility);
+}
+
+// Listener del Checkbox
+obrasEls.check.addEventListener('change', (e) => {
+    if (!map.getSource('obras-source')) {
+        loadObrasData();
+    } else {
+        toggleObrasLayer(e.target.checked);
+    }
+});
+
 initializeMap();

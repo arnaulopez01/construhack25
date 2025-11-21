@@ -1,0 +1,71 @@
+{
+  "type": "FeatureCollection",
+  "features": [
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [2.0180, 41.3198],
+            [2.0182, 41.3190],
+            [2.0188, 41.3188],
+            [2.0195, 41.3195],
+            [2.0190, 41.3201],
+            [2.0180, 41.3198]
+          ]
+        ]
+      },
+      "properties": {
+        "id_obra": "OBRA_Rambla_Modolell",
+        "nombre": "Renovación Urbana Rambla Modolell",
+        "barrio": "Barri Antic / Mercat",
+        "expediente_detalle": {
+          "expediente_numero": "OM/2025/0045",
+          "promotor": "Administración Municipal (Infraestructuras)",
+          "tipo_licencia": "Obra Pública Mayor (Urbanización)",
+          "ambito": "Reforma integral del tramo central de la Rambla, entre C/ Major y Av. Catalunya.",
+          "descripcion": "Renovación de pavimento, ampliación de aceras y sistema de saneamiento.",
+          "plazo_ejecucion_dias": 120,
+          "presupuesto_ejecucion": 1250000.00,
+          "materiales_clave": "Granito pulido, Asfalto fonoreductor, Tuberías de PVC.",
+          "fecha_concesion_licencia": "2025-09-01",
+          "estado_expediente": "En Ejecución"
+        }
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [2.0210, 41.3155],
+            [2.0214, 41.3148],
+            [2.0225, 41.3142],
+            [2.0230, 41.3149],
+            [2.0226, 41.3158],
+            [2.0210, 41.3155]
+          ]
+        ]
+      },
+      "properties": {
+        "id_obra": "OBRA_Plaça_Saint_Herblain",
+        "nombre": "Edificación Nueva Pl. Saint Herblain",
+        "barrio": "Barri de Llevant",
+        "expediente_detalle": {
+          "expediente_numero": "OM/2024/0210",
+          "promotor": "Promotora Habitat S.L.",
+          "tipo_licencia": "Obra Mayor (Edificación Residencial)",
+          "ambito": "Parcela 3B, esquina Pl. Saint Herblain. Construcción de 20 viviendas y ático.",
+          "descripcion": "Construcción de edificio plurifamiliar de planta baja + 4, con aparcamiento subterráneo. Uso de elementos prefabricados.",
+          "plazo_ejecucion_dias": 480,
+          "presupuesto_ejecucion": 3800000.00,
+          "materiales_clave": "Hormigón armado, Ladrillo cerámico, Aislamiento térmico SATE.",
+          "fecha_concesion_licencia": "2024-11-20",
+          "estado_expediente": "En Ejecución (Estructura)"
+        }
+      }
+    }
+  ]
+}
