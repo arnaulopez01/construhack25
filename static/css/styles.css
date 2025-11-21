@@ -1,0 +1,102 @@
+body, html { margin: 0; padding: 0; height: 100%; width: 100%; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; overflow: hidden; }
+#map { width: 100%; height: 100%; position: relative; }
+
+/* Botones flotantes */
+.map-buttons {
+    position: absolute;
+    top: 20px; right: 20px;
+    display: flex; flex-direction: column; gap: 10px; z-index: 10;
+}
+.map-buttons button {
+    width: 40px; height: 40px; border: none; background: white;
+    border-radius: 8px; box-shadow: 0 2px 6px rgba(0,0,0,0.15);
+    cursor: pointer; font-size: 16px; color: #444;
+    transition: all 0.2s ease;
+}
+.map-buttons button:hover { background: #f8f9fa; transform: translateY(-1px); }
+
+/* Panel de Capas */
+#layers-panel {
+    position: absolute; top: 20px; right: 75px;
+    background: rgba(255, 255, 255, 0.98); padding: 20px;
+    border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    width: 220px; z-index: 10; display: none;
+    backdrop-filter: blur(4px);
+}
+#layers-panel h4 { margin: 15px 0 8px 0; color: #333; font-size: 12px; text-transform: uppercase; letter-spacing: 0.5px; font-weight: 700; }
+#layers-panel h4:first-child { margin-top: 0; }
+.layer-option { display: flex; align-items: center; margin-bottom: 8px; cursor: pointer; font-size: 13px; color: #555; }
+.layer-option input { margin-right: 8px; accent-color: #0079c1; }
+hr { border: 0; border-top: 1px solid #eee; margin: 12px 0; }
+
+/* Elementos Flotantes (Leyendas y Controles) */
+.map-overlay {
+    position: absolute;
+    background: rgba(255, 255, 255, 0.95);
+    border-radius: 8px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    padding: 15px;
+    z-index: 5;
+}
+
+/* Leyenda de Edificios */
+.legend { bottom: 30px; right: 20px; width: 180px; }
+.legend h4 { margin: 0 0 12px; font-size: 13px; font-weight: bold; }
+.legend-item { display: flex; align-items: center; margin-bottom: 6px; font-size: 12px; color: #444; }
+.legend-color { width: 16px; height: 16px; margin-right: 10px; border-radius: 4px; }
+
+/* Controles Heatmap */
+.controls { bottom: 30px; left: 20px; width: 220px; }
+.controls h4 { margin: 0 0 12px; font-size: 13px; font-weight: bold; }
+.slider-group { margin-bottom: 12px; }
+.slider-group label { display: block; font-size: 11px; color: #666; margin-bottom: 4px; font-weight: 600; }
+.slider-group input { width: 100%; cursor: pointer; }
+
+/* --- ESTILO MEJORADO DEL POPUP --- */
+.maplibregl-popup {
+    z-index: 20; /* Por encima de todo */
+}
+.maplibregl-popup-content {
+    padding: 0;
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.25);
+    font-family: 'Segoe UI', sans-serif;
+    border: none;
+    min-width: 220px;
+}
+.maplibregl-popup-close-button {
+    color: white;
+    font-size: 18px;
+    padding: 5px 10px;
+    z-index: 2;
+    text-shadow: 0 1px 2px rgba(0,0,0,0.3);
+}
+.maplibregl-popup-close-button:hover {
+    background: rgba(0,0,0,0.1);
+}
+
+/* Cabecera del Popup */
+.popup-header {
+    padding: 12px 15px;
+    color: white;
+    font-weight: bold;
+    font-size: 14px;
+    background: #555; /* Color por defecto, se sobreescribe con JS */
+}
+.popup-body {
+    padding: 15px;
+    background: white;
+}
+.popup-row {
+    margin-bottom: 8px;
+    font-size: 13px;
+    color: #555;
+    display: flex;
+    justify-content: space-between;
+    border-bottom: 1px solid #f0f0f0;
+    padding-bottom: 4px;
+}
+.popup-row:last-child { border-bottom: none; margin-bottom: 0; }
+.popup-label { font-weight: 600; color: #333; }
+.popup-value { color: #666; }

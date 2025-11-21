@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Visor Urbanismo</title>
+    <link href="https://unpkg.com/maplibre-gl@3.6.2/dist/maplibre-gl.css" rel="stylesheet" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+</head>
+<body>
+
+    <div id="map">
+        
+        <!-- Botones flotantes (Widgets) -->
+        <div class="map-buttons">
+            <button id="layers-toggle" title="Gestionar Capas"><i class="fa-solid fa-layer-group"></i></button>
+            <button id="toggle-3d" title="Alternar Vista 2D/3D"><i class="fa-solid fa-cube"></i></button>
+            <button id="camera-button" title="Generar Foto"><i class="fa-solid fa-camera"></i></button>
+        </div>
+
+        <!-- Panel de Capas -->
+        <div id="layers-panel">
+            <h4>Mapa Base</h4>
+            <label class="layer-option"><input type="radio" name="base-layer" value="osm" checked> OSM</label>
+            <label class="layer-option"><input type="radio" name="base-layer" value="esri-satellite"> Satélite</label>
+            <label class="layer-option"><input type="radio" name="base-layer" value="esri-topo"> Topográfico</label>
+            <hr>
+            <h4>Capas Temáticas</h4>
+            <label class="layer-option"><input type="checkbox" id="buildings-checkbox"> Edificios (3D)</label>
+            <label class="layer-option"><input type="checkbox" id="population-points-checkbox"> Población (Puntos)</label>
+            <label class="layer-option"><input type="checkbox" id="population-heatmap-checkbox"> Población (Calor)</label>
+            <hr>
+            <h4>Entorno</h4>
+            <label class="layer-option"><input type="checkbox" id="terrain-3d-checkbox"> Relieve 3D (DTM)</label>
+            <label class="layer-option"><input type="checkbox" id="catastro-checkbox"> Catastro (WMS)</label>
+        </div>
+
+        <!-- Leyenda de Edificios -->
+        <div id="building-legend" class="map-overlay legend" style="display: none;">
+            <h4>Uso del Edificio</h4>
+            <div id="legend-content"></div>
+        </div>
+
+        <!-- Controles Mapa de Calor -->
+        <div id="heatmap-controls" class="map-overlay controls" style="display: none;">
+            <h4>Control de Población</h4>
+            <div class="slider-group">
+                <label>Radio</label>
+                <input type="range" id="heatmap-radius" min="5" max="50" step="1" value="20">
+            </div>
+            <div class="slider-group">
+                <label>Intensidad</label>
+                <input type="range" id="heatmap-intensity" min="0.1" max="3" step="0.1" value="1">
+            </div>
+        </div>
+
+    </div>
+
+    <script src="https://unpkg.com/maplibre-gl@3.6.2/dist/maplibre-gl.js"></script>
+    <!-- Proj4js para coordenadas -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/proj4js/2.9.0/proj4.js"></script>
+
+    <script>
+        const CONFIG = {
+            lat: {{ start_lat }},
+            lon: {{ start_lon }},
+            zoom: {{ start_zoom }},
+            maptilerKey: "{{ maptiler_api_key }}"
+        };
+    </script>
+    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+</body>
+</html>

@@ -1,0 +1,80 @@
+{
+  "type": "FeatureCollection",
+  "features": [
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [2.0186264054201284, 41.31903254714445]
+      },
+      "properties": {
+        "id_obra": "OBRA_Rambla_Modolell",
+        "nombre": "Rambla Modolell (Obra)",
+        "tipo_sensor": "Simulació Ambiental",
+        "fecha_medicion": "2025-11-23 12:00",
+        "NO2": 48.50,
+        "O3": 52.10,
+        "PM10": 28.95,
+        "PM2_5": 11.50,
+        "PM1": 6.80,
+        "CO2": 460.00,
+        "unidad_NO2": "µg/m³",
+        "unidad_O3": "µg/m³",
+        "unidad_PM10": "µg/m³",
+        "unidad_PM2_5": "µg/m³",
+        "unidad_PM1": "µg/m³",
+        "unidad_CO2": "mg/m³"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [2.022012508952257, 41.31488834668358]
+      },
+      "properties": {
+        "id_obra": "OBRA_Plaça_Saint_Herblain",
+        "nombre": "Plaça Saint Herblain (Obra)",
+        "tipo_sensor": "Simulació Ambiental",
+        "fecha_medicion": "2025-11-23 12:00",
+        "NO2": 42.15,
+        "O3": 60.55,
+        "PM10": 21.30,
+        "PM2_5": 9.25,
+        "PM1": 4.90,
+        "CO2": 435.00,
+        "unidad_NO2": "µg/m³",
+        "unidad_O3": "µg/m³",
+        "unidad_PM10": "µg/m³",
+        "unidad_PM2_5": "µg/m³",
+        "unidad_PM1": "µg/m³",
+        "unidad_CO2": "mg/m³"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [2.0247329282173885, 41.32285259044426]
+      },
+      "properties": {
+        "id_obra": "OBRA_Barri_de_Llevant",
+        "nombre": "Barri de Llevant (Obra)",
+        "tipo_sensor": "Simulació Ambiental",
+        "fecha_medicion": "2025-11-23 12:00",
+        "NO2": 51.90,
+        "O3": 55.70,
+        "PM10": 33.45,
+        "PM2_5": 14.80,
+        "PM1": 8.05,
+        "CO2": 475.00,
+        "unidad_NO2": "µg/m³",
+        "unidad_O3": "µg/m³",
+        "unidad_PM10": "µg/m³",
+        "unidad_PM2_5": "µg/m³",
+        "unidad_PM1": "µg/m³",
+        "unidad_CO2": "mg/m³"
+      }
+    }
+  ]
+}
