@@ -1,5 +1,6 @@
 import os
-from flask import Flask, render_template
+import json
+from flask import Flask, render_template, request, jsonify
 from dotenv import load_dotenv
 
 load_dotenv()
@@ -12,9 +13,7 @@ DEFAULT_ZOOM = 12
 
 @app.route('/')
 def index():
-
     maptiler_key = os.getenv('MAPTILER_API_KEY', '')
-
     return render_template('index.html', 
                            maptiler_api_key=maptiler_key,
                            start_lat=DEFAULT_LAT,
