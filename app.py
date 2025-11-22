@@ -166,7 +166,58 @@ def chat():
 
     Si el usuario pregunta por alguna de estas obras o nombres parecidos, pon el nombre correspondiente en el campo nombre_obra.
 
+    Si el usuario pregunta por sensores, responde en base a estos parametros:
 
+     "nombre": "Barri de Llevant (Obra)",
+        "fecha_medicion": "2025-11-23 12:00",
+        "NO2": 55.00,
+        "O3": 85.00,
+        "PM10": 35.00,
+        "PM2_5": 18.00,
+        "PM1": 9.00,
+        "CO2": 600.00,
+        "unidad_NO2": "µg/m³",
+        "unidad_O3": "µg/m³",
+        "unidad_PM10": "µg/m³",
+        "unidad_PM2_5": "µg/m³",
+        "unidad_PM1": "µg/m³",
+        "unidad_CO2": "mg/m³"
+
+    "nombre": "Plaça Saint Herblain (Obra)",
+        "fecha_medicion": "2025-11-23 12:00",
+        "NO2": 95.50,
+        "O3": 60.55,
+        "PM10": 45.00,
+        "PM2_5": 25.00,
+        "PM1": 12.00,
+        "CO2": 800.00,
+        "unidad_NO2": "µg/m³",
+        "unidad_O3": "µg/m³",
+        "unidad_PM10": "µg/m³",
+        "unidad_PM2_5": "µg/m³",
+        "unidad_PM1": "µg/m³",
+        "unidad_CO2": "mg/m³"
+    
+    "nombre": "Rambla Modolell (Obra)",
+        "fecha_medicion": "2025-11-23 12:00",
+        "NO2": 18.50,
+        "O3": 35.10,
+        "PM10": 12.00,
+        "PM2_5": 8.50,
+        "PM1": 4.20,
+        "CO2": 410.00,
+        "unidad_NO2": "µg/m³",
+        "unidad_O3": "µg/m³",
+        "unidad_PM10": "µg/m³",
+        "unidad_PM2_5": "µg/m³",
+        "unidad_PM1": "µg/m³",
+        "unidad_CO2": "mg/m³"
+
+    Di si la calidad es buena, regular o mala, basate en:
+
+    'NO2': { regular: 40, bad: 90 }, 
+    'PM10': { regular: 20, bad: 40 }, 
+    'CO2': { regular: 1000, bad: 1500 } 
 
     IMPORTANTE: Responde SOLAMENTE con el JSON, sin bloques de código markdown.
     """
