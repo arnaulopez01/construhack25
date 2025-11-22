@@ -313,11 +313,33 @@ async function loadIoTData() {
 
         map.on('mouseenter', 'iot-layer', () => map.getCanvas().style.cursor = 'pointer');
         map.on('mouseleave', 'iot-layer', () => map.getCanvas().style.cursor = '');
+        // Busca esto dentro de la función loadIoTData() y sustitúyelo:
+
         map.on('click', 'iot-layer', e => {
             const p = e.features[0].properties;
-            const html = `<div class="popup-header" style="background:#333;color:white;">${p.nombre}</div>
-                          <div class="popup-body">NO2: ${p.NO2}<br>PM10: ${p.PM10}<br>CO2: ${p.CO2}</div>`;
-            new maplibregl.Popup({className:'custom-popup'}).setLngLat(e.lngLat).setHTML(html).addTo(map);
+
+            // Tu URL de imagen (Con Date.now() para que cargue la imagen en tiempo real y no se quede cacheada)
+            const imageUrl = `https://mct.gencat.cat/mct2bo/TransitCamera?nom=sc12.jpg&time=${Date.now()}&visualitzacio=imatge`;
+
+            const html = `
+                <div class="popup-header" style="background:#333;color:white;">
+                    ${p.nombre}
+                </div>
+                <div class="popup-body">
+                    <div style="margin-bottom: 8px; text-align: center;">
+                        <img src="${imageUrl}" alt="Cámara en vivo" style="width: 100%; height: auto; border-radius: 4px; border: 1px solid #ccc;">
+                    </div>
+                    
+                    <strong>Calidad del Aire:</strong><br>
+                    NO2: ${p.NO2}<br>
+                    PM10: ${p.PM10}<br>
+                    CO2: ${p.CO2}
+                </div>`;
+
+            new maplibregl.Popup({className:'custom-popup', maxWidth: '300px'}) // Aumenté un poco el ancho máximo para la foto
+                .setLngLat(e.lngLat)
+                .setHTML(html)
+                .addTo(map);
         });
 
         buildIoTLegend();
