@@ -136,7 +136,7 @@ function setupBaseLayers() {
 }
 
 // ==================================================================
-// 3. CARGA DE CAPAS PRINCIPALES (Edificios, Población)
+// 3. CARGA DE CAPAS PRINCIPALES (CORREGIDO)
 // ==================================================================
 
 async function setupCoreLayers() {
@@ -144,11 +144,8 @@ async function setupCoreLayers() {
     map.addSource('catastro-wms', { 'type': 'raster', 'tiles': ['https://ovc.catastro.meh.es/Cartografia/WMS/ServidorWMS.aspx?bbox={bbox-epsg-3857}&format=image/png&service=WMS&version=1.1.1&request=GetMap&srs=EPSG:3857&width=256&height=256&layers=Catastro&transparent=true'], 'tileSize': 256 });
     map.addLayer({ 'id': 'catastro-layer', 'type': 'raster', 'source': 'catastro-wms', 'layout': { 'visibility': 'none' } });
 
-    // ==============================================================================
-    // C. POBLACIÓN (MOVIDO AQUÍ ARRIBA PARA QUE QUEDE DEBAJO DE LOS EDIFICIOS)
-    // ==============================================================================
+    // C. POBLACIÓN
     map.addSource('poblacion-source', { 'type': 'geojson', 'data': 'static/data/poblacio.geojson' });
-    
     map.addLayer({
         'id': 'poblacion-heatmap', 'type': 'heatmap', 'source': 'poblacion-source', 'layout': { 'visibility': 'none' },
         'paint': {
@@ -157,24 +154,37 @@ async function setupCoreLayers() {
             'heatmap-color': ['interpolate', ['linear'], ['heatmap-density'], 0, 'rgba(33,102,172,0)', 0.2, 'rgb(103,169,207)', 0.4, 'rgb(209,229,240)', 0.6, 'rgb(253,219,199)', 0.8, 'rgb(239,138,98)', 1, 'rgb(178,24,43)']
         }
     });
-
     map.addLayer({
         'id': 'poblacion-points', 'type': 'circle', 'source': 'poblacion-source', 'layout': { 'visibility': 'none' },
         'paint': { 'circle-radius': 6, 'circle-color': '#ffffff', 'circle-stroke-color': '#e31a1c', 'circle-stroke-width': 2 }
     });
 
-    // ==============================================================================
-    // B. EDIFICIOS (AHORA VA DESPUÉS, PARA QUE SE PINTE ENCIMA DE LO ANTERIOR)
-    // ==============================================================================
+    // B. EDIFICIOS (CORREGIDO)
     proj4.defs("EPSG:25831","+proj=utm +zone=31 +ellps=GRS80 +units=m +no_defs");
+    
     try {
+        console.log("📥 Descargando edificios...");
         const response = await fetch('static/data/edificis.geojson');
         const data = await response.json();
         
+        console.log(`🔄 Procesando ${data.features.length} edificios. Convirtiendo coordenadas...`);
+
+        // Función helper para transformar un Anillo de coordenadas (Array de [x,y])
+        const transformRing = ring => ring.map(c => proj4("EPSG:25831", "EPSG:4326", c));
+        
+        // Función helper para transformar un Polígono (Array de Anillos)
+        const transformPolygon = coords => coords.map(ring => transformRing(ring));
+
         data.features.forEach(f => {
-            const transform = cs => cs.map(ring => ring.map(c => proj4("EPSG:25831", "EPSG:4326", c)));
-            if (f.geometry.type === 'Polygon') f.geometry.coordinates = transform(f.geometry.coordinates);
-            else if (f.geometry.type === 'MultiPolygon') f.geometry.coordinates = f.geometry.coordinates.map(p => transform(p)[0]);
+            if (f.geometry.type === 'Polygon') {
+                // Polygon: Array de Anillos
+                f.geometry.coordinates = transformPolygon(f.geometry.coordinates);
+            } 
+            else if (f.geometry.type === 'MultiPolygon') {
+                // MultiPolygon: Array de Polígonos. 
+                // CORRECCIÓN: Mapeamos cada polígono sin aplanarlo incorrectamente
+                f.geometry.coordinates = f.geometry.coordinates.map(polygonCoords => transformPolygon(polygonCoords));
+            }
         });
 
         map.addSource('edificios-source', { 'type': 'geojson', 'data': data });
@@ -199,8 +209,9 @@ async function setupCoreLayers() {
         });
 
         setupBuildingInteractions();
+        console.log("✅ Edificios cargados correctamente.");
 
-    } catch (err) { console.error("Error Edificios:", err); }
+    } catch (err) { console.error("❌ Error cargando Edificios:", err); }
 }
 
 // ==================================================================
