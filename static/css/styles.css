@@ -63,9 +63,9 @@ body, html {
     font-weight: 700;
     font-size: 18px;
     min-width: 200px;
-    color: #1e293b; /* Azul oscuro */
+    color: #000000; /* Azul oscuro */
 }
-.header-logo i { color: #3b82f6; font-size: 20px; }
+.header-logo i { color: #000000; font-size: 20px; }
 .header-logo span small {
     background: #eff6ff; /* Azul muy pálido */
     color: #1e293b;      /* Texto oscuro */

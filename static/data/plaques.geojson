@@ -1,0 +1,125 @@
+{
+  "type": "FeatureCollection",
+  "features": [
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          2.0089,
+          41.3094
+        ]
+      },
+      "properties": {
+        "nombre_ubicacion": "Viladecans, Barcelona",
+        "latitud": 41.3094,
+        "longitud": 2.0089,
+        "unidad": "Wh",
+        "potencia_panel_wp": 450,
+        "descripcion": "Estimación horaria de generación fotovoltaica para un día con buenas condiciones solares.",
+        "serie_temporal": [
+          {
+            "hora": "2025-06-21T00:00:00+02:00",
+            "generacion": 0.0
+          },
+          {
+            "hora": "2025-06-21T01:00:00+02:00",
+            "generacion": 0.0
+          },
+          {
+            "hora": "2025-06-21T02:00:00+02:00",
+            "generacion": 0.0
+          },
+          {
+            "hora": "2025-06-21T03:00:00+02:00",
+            "generacion": 0.0
+          },
+          {
+            "hora": "2025-06-21T04:00:00+02:00",
+            "generacion": 0.0
+          },
+          {
+            "hora": "2025-06-21T05:00:00+02:00",
+            "generacion": 0.0
+          },
+          {
+            "hora": "2025-06-21T06:00:00+02:00",
+            "generacion": 5.0
+          },
+          {
+            "hora": "2025-06-21T07:00:00+02:00",
+            "generacion": 40.0
+          },
+          {
+            "hora": "2025-06-21T08:00:00+02:00",
+            "generacion": 120.0
+          },
+          {
+            "hora": "2025-06-21T09:00:00+02:00",
+            "generacion": 250.0
+          },
+          {
+            "hora": "2025-06-21T10:00:00+02:00",
+            "generacion": 350.0
+          },
+          {
+            "hora": "2025-06-21T11:00:00+02:00",
+            "generacion": 400.0
+          },
+          {
+            "hora": "2025-06-21T12:00:00+02:00",
+            "generacion": 420.0
+          },
+          {
+            "hora": "2025-06-21T13:00:00+02:00",
+            "generacion": 380.0
+          },
+          {
+            "hora": "2025-06-21T14:00:00+02:00",
+            "generacion": 300.0
+          },
+          {
+            "hora": "2025-06-21T15:00:00+02:00",
+            "generacion": 180.0
+          },
+          {
+            "hora": "2025-06-21T16:00:00+02:00",
+            "generacion": 80.0
+          },
+          {
+            "hora": "2025-06-21T17:00:00+02:00",
+            "generacion": 15.0
+          },
+          {
+            "hora": "2025-06-21T18:00:00+02:00",
+            "generacion": 0.0
+          },
+          {
+            "hora": "2025-06-21T19:00:00+02:00",
+            "generacion": 0.0
+          },
+          {
+            "hora": "2025-06-21T20:00:00+02:00",
+            "generacion": 0.0
+          },
+          {
+            "hora": "2025-06-21T21:00:00+02:00",
+            "generacion": 0.0
+          },
+          {
+            "hora": "2025-06-21T22:00:00+02:00",
+            "generacion": 0.0
+          },
+          {
+            "hora": "2025-06-21T23:00:00+02:00",
+            "generacion": 0.0
+          },
+          {
+            "hora": "2025-06-21T00:00:00+02:00",
+            "generacion": 0.0
+          }
+        ]
+      }
+    }
+  ]
+}

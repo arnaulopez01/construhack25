@@ -8,12 +8,13 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
     <script src="https://unpkg.com/three@0.147.0/build/three.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/echarts@5.4.3/dist/echarts.min.js"></script>
 </head>
 <body>
 
     <header class="app-header">
         <div class="header-logo">
-            <i class="fa-solid fa-map-location-dot"></i> 
+            <i class="fa-solid fa-eye"></i> 
             <span>SmartVision<small>beta</small></span>
         </div>
         
@@ -52,6 +53,7 @@
             <h4>Sensorica</h4>
             <label class="layer-option"><input type="checkbox" id="iot-checkbox"> Calidad Aire (Semáforo)</label>
             <label class="layer-option"><input type="checkbox" id="cameras-checkbox"> Cámaras DGT</label>
+            <label class="layer-option"><input type="checkbox" id="solar-checkbox"> Placas Solares (Generación)</label>
             <hr>
             <h4>Urbanismo y entorno</h4>
             <label class="layer-option"><input type="checkbox" id="obras-checkbox"> Obras en Curso</label>

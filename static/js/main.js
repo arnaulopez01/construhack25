@@ -536,6 +536,20 @@ bimCheck.addEventListener('change', (e) => {
     }
 });
 
+// Referencia al elemento
+const solarCheck = document.getElementById('solar-checkbox');
+
+if (solarCheck) {
+    solarCheck.addEventListener('change', e => {
+        if (!map.getSource('solar-source')) {
+            loadSolarData(); // Primera carga
+        } else {
+            // Toggle visibilidad
+            map.setLayoutProperty('solar-layer', 'visibility', e.target.checked ? 'visible' : 'none');
+        }
+    });
+}
+
 document.getElementById('heatmap-radius').addEventListener('input', e => map.setPaintProperty('poblacion-heatmap', 'heatmap-radius', parseFloat(e.target.value)));
 document.getElementById('heatmap-intensity').addEventListener('input', e => map.setPaintProperty('poblacion-heatmap', 'heatmap-intensity', parseFloat(e.target.value)));
 document.getElementById('toggle-3d').addEventListener('click', () => { const p=map.getPitch(); map.easeTo({pitch:p>0?0:60,bearing:p>0?0:-20}); });
@@ -747,6 +761,129 @@ async function loadCamerasData() {
 
     } catch (err) {
         console.error("Error cargando Cámaras:", err);
+    }
+}
+
+// ==================================================================
+// 11. ENERGÍA SOLAR Y ECHARTS
+// ==================================================================
+
+async function loadSolarData() {
+    if (map.getSource('solar-source')) return;
+
+    try {
+        // 1. Cargar GeoJSON
+        const response = await fetch('static/data/plaques.geojson');
+        const data = await response.json();
+
+        map.addSource('solar-source', { 'type': 'geojson', 'data': data });
+
+        // 2. Añadir capa visual (Círculo Amarillo Brillante)
+        map.addLayer({
+            'id': 'solar-layer',
+            'type': 'circle',
+            'source': 'solar-source',
+            'layout': { 'visibility': 'visible' },
+            'paint': {
+                'circle-radius': 10,
+                'circle-color': '#FFD600', // Amarillo Solar
+                'circle-stroke-width': 2,
+                'circle-stroke-color': '#FFFFFF',
+                'circle-opacity': 0.9
+            }
+        });
+
+        // 3. Interacciones
+        map.on('mouseenter', 'solar-layer', () => map.getCanvas().style.cursor = 'pointer');
+        map.on('mouseleave', 'solar-layer', () => map.getCanvas().style.cursor = '');
+
+        map.on('click', 'solar-layer', (e) => {
+            const props = e.features[0].properties;
+            
+            // MapLibre a veces convierte arrays en strings dentro de properties. 
+            // Nos aseguramos de parsearlo si viene como texto.
+            let timeSeries = props.serie_temporal;
+            if (typeof timeSeries === 'string') {
+                timeSeries = JSON.parse(timeSeries);
+            }
+
+            // Preparar datos para ECharts
+            const horas = timeSeries.map(item => {
+                // Convertir "2025-06-21T06:00:00+02:00" a "06:00"
+                const date = new Date(item.hora);
+                return date.getHours().toString().padStart(2, '0') + ':00';
+            });
+            const valores = timeSeries.map(item => item.generacion);
+
+            // Generar ID único para el gráfico
+            const chartId = `chart-solar-${Date.now()}`;
+
+            // HTML del Popup
+            const html = `
+                <div class="popup-header" style="background:#FBC02D; color:#333;">
+                    <i class="fa-solid fa-solar-panel"></i> ${props.nombre_ubicacion}
+                </div>
+                <div class="popup-body" style="padding: 10px;">
+                    <div style="font-size: 12px; color: #666; margin-bottom: 5px;">
+                        Potencia Instalada: <b>${props.potencia_panel_wp} Wp</b>
+                    </div>
+                    <div id="${chartId}" style="width: 320px; height: 200px;"></div>
+                    <div style="font-size: 10px; text-align: center; color: #999;">
+                        ${props.descripcion}
+                    </div>
+                </div>
+            `;
+
+            // Crear el Popup
+            new maplibregl.Popup({ className: 'custom-popup', maxWidth: '360px' })
+                .setLngLat(e.lngLat)
+                .setHTML(html)
+                .addTo(map);
+
+            // 4. INICIALIZAR ECHARTS
+            // IMPORTANTE: Usamos un pequeño timeout para asegurar que el HTML 
+            // del popup ya se ha renderizado en el DOM antes de que ECharts intente buscar el ID.
+            setTimeout(() => {
+                const chartDom = document.getElementById(chartId);
+                if (chartDom) {
+                    const myChart = echarts.init(chartDom);
+                    const option = {
+                        grid: { top: 30, right: 10, bottom: 20, left: 40 },
+                        tooltip: { 
+                            trigger: 'axis',
+                            formatter: '{b}: {c} Wh'
+                        },
+                        xAxis: {
+                            type: 'category',
+                            data: horas,
+                            axisLabel: { fontSize: 9 }
+                        },
+                        yAxis: {
+                            type: 'value',
+                            name: 'Wh',
+                            axisLabel: { fontSize: 9 }
+                        },
+                        series: [{
+                            data: valores,
+                            type: 'line',
+                            smooth: true,
+                            areaStyle: {
+                                color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
+                                    { offset: 0, color: 'rgba(255, 214, 0, 0.8)' },
+                                    { offset: 1, color: 'rgba(255, 214, 0, 0.1)' }
+                                ])
+                            },
+                            lineStyle: { color: '#FBC02D' },
+                            itemStyle: { color: '#FBC02D' }
+                        }]
+                    };
+                    myChart.setOption(option);
+                }
+            }, 100); // 100ms de espera
+        });
+
+    } catch (err) {
+        console.error("Error cargando Placas Solares:", err);
     }
 }
 
