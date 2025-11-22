@@ -158,13 +158,15 @@ def chat():
          "respuesta_texto": "Tu respuesta amable aquí."
        }
     
-    Nombres de las obnras activas en viladecans:
+    Nombres de las obras activas en viladecans:
 
-    "Renovación Urbana Rambla Modolell"
-    "Edificación Nueva Pl. Saint Herblain"
-    "Vivienda Social Barri de Llevant"
+    "Peatonalización y Mejora de Accesibilidad Rambla Modolell"
+    "Renaturalización y Nuevo Parque Infantil Plaça Saint Herblain"
+    "Nueva vivienda social - Barri de Llevant"
 
     Si el usuario pregunta por alguna de estas obras o nombres parecidos, pon el nombre correspondiente en el campo nombre_obra.
+
+
 
     IMPORTANTE: Responde SOLAMENTE con el JSON, sin bloques de código markdown.
     """

@@ -277,28 +277,32 @@ function setupObrasInteractions() {
 }
 
 // ==================================================================
-// 5. CARGA DE CAPA IOT (Bajo Demanda)
+// 5. CARGA DE CAPA IOT (Con soporte para foto_sensor)
 // ==================================================================
 
 function calculateIoTStatus(props) {
     let maxLevel = 0;
-    Object.keys(IOT_THRESHOLDS).forEach(key => {
-        const val = props[key];
-        if (val != null) {
-            const lim = IOT_THRESHOLDS[key];
-            let lvl = 0;
-            if (val >= lim.bad) lvl = 2; else if (val >= lim.regular) lvl = 1;
-            if (lvl > maxLevel) maxLevel = lvl;
-        }
-    });
+    if (typeof IOT_THRESHOLDS !== 'undefined') {
+        Object.keys(IOT_THRESHOLDS).forEach(key => {
+            const val = props[key];
+            if (val != null) {
+                const lim = IOT_THRESHOLDS[key];
+                let lvl = 0;
+                if (val >= lim.bad) lvl = 2; else if (val >= lim.regular) lvl = 1;
+                if (lvl > maxLevel) maxLevel = lvl;
+            }
+        });
+    }
     return maxLevel;
 }
 
 async function loadIoTData() {
     if (map.getSource('iot-source')) return;
+
     try {
         const response = await fetch('static/data/iot.geojson');
         const data = await response.json();
+
         data.features.forEach(f => f.properties.qualityLevel = calculateIoTStatus(f.properties));
 
         map.addSource('iot-source', { 'type': 'geojson', 'data': data });
@@ -307,36 +311,74 @@ async function loadIoTData() {
             'id': 'iot-layer', 'type': 'circle', 'source': 'iot-source', 'layout': { 'visibility': 'visible' },
             'paint': {
                 'circle-radius': 8, 'circle-opacity': 0.9, 'circle-stroke-width': 1, 'circle-stroke-color': '#fff',
-                'circle-color': ['match', ['get', 'qualityLevel'], 0, IOT_LEVELS[0].color, 1, IOT_LEVELS[1].color, 2, IOT_LEVELS[2].color, '#ccc']
+                'circle-color': [
+                    'match', ['get', 'qualityLevel'], 
+                    0, IOT_LEVELS[0].color, 1, IOT_LEVELS[1].color, 2, IOT_LEVELS[2].color, '#ccc'
+                ]
             }
         });
 
         map.on('mouseenter', 'iot-layer', () => map.getCanvas().style.cursor = 'pointer');
         map.on('mouseleave', 'iot-layer', () => map.getCanvas().style.cursor = '');
-        // Busca esto dentro de la función loadIoTData() y sustitúyelo:
 
+        // --- INTERACCIÓN POPUP ---
         map.on('click', 'iot-layer', e => {
             const p = e.features[0].properties;
 
-            // Tu URL de imagen (Con Date.now() para que cargue la imagen en tiempo real y no se quede cacheada)
-            const imageUrl = `https://mct.gencat.cat/mct2bo/TransitCamera?nom=sc12.jpg&time=${Date.now()}&visualitzacio=imatge`;
+            // 1. DETECCIÓN DE IMAGEN (Aquí está el cambio)
+            // Priorizamos 'foto_sensor' que es lo que viene en tu JSON
+            const imageUrl = p.foto_sensor || p.imagen || 'https://placehold.co/300x150?text=Sin+Imagen';
 
+            // 2. PARÁMETROS A MOSTRAR
+            const metrics = ['NO2', 'O3', 'PM10', 'PM2_5', 'PM1', 'CO2'];
+            let rowsHtml = '';
+
+            metrics.forEach(key => {
+                const val = p[key];
+                if (val !== undefined && val !== null) {
+                    let style = '';
+                    const unit = p[`unidad_${key}`] || ''; // Lee unidad_NO2, unidad_CO2, etc.
+
+                    // Semáforo de colores
+                    if (typeof IOT_THRESHOLDS !== 'undefined' && IOT_THRESHOLDS[key]) {
+                        if (val >= IOT_THRESHOLDS[key].bad) {
+                            style = 'color:#d32f2f; font-weight:bold;'; // Rojo
+                        } else if (val >= IOT_THRESHOLDS[key].regular) {
+                            style = 'color:#f57c00; font-weight:bold;'; // Naranja
+                        }
+                    }
+                    
+                    rowsHtml += `
+                    <div style="display:flex; justify-content:space-between; border-bottom:1px solid #eee; padding:3px 0;">
+                        <span style="color:#555; font-weight:500;">${key}:</span> 
+                        <span style="${style}">${val} <small style="color:#999; font-weight:normal;">${unit}</small></span>
+                    </div>`;
+                }
+            });
+
+            // 3. HTML DEL POPUP
             const html = `
-                <div class="popup-header" style="background:#333;color:white;">
-                    ${p.nombre}
+                <div class="popup-header" style="background:#2c3e50; color:white; padding:10px; border-radius:4px 4px 0 0;">
+                    <i class="fa-solid fa-microchip"></i> ${p.nombre || 'Sensor IoT'}
+                    <div style="font-size:0.75em; opacity:0.8; font-weight:normal; margin-top:2px;">
+                        ${p.tipo_sensor || 'Estación de Medición'}
+                    </div>
                 </div>
-                <div class="popup-body">
-                    <div style="margin-bottom: 8px; text-align: center;">
-                        <img src="${imageUrl}" alt="Cámara en vivo" style="width: 100%; height: auto; border-radius: 4px; border: 1px solid #ccc;">
+                <div class="popup-body" style="padding:10px;">
+                    <div style="margin-bottom: 10px; text-align:center; background:#f9f9f9;">
+                        <img src="${imageUrl}" style="width: 100%; max-height: 150px; object-fit: cover; border-radius: 4px; border: 1px solid #ddd;">
                     </div>
                     
-                    <strong>Calidad del Aire:</strong><br>
-                    NO2: ${p.NO2}<br>
-                    PM10: ${p.PM10}<br>
-                    CO2: ${p.CO2}
+                    <div style="font-size:0.8em; color:#888; margin-bottom:8px;">
+                        <i class="fa-regular fa-clock"></i> Última lectura: ${p.fecha_medicion || '-'}
+                    </div>
+                    
+                    <div style="font-size:0.95em; line-height:1.6;">
+                        ${rowsHtml}
+                    </div>
                 </div>`;
 
-            new maplibregl.Popup({className:'custom-popup', maxWidth: '300px'}) // Aumenté un poco el ancho máximo para la foto
+            new maplibregl.Popup({className:'custom-popup', maxWidth: '280px'})
                 .setLngLat(e.lngLat)
                 .setHTML(html)
                 .addTo(map);
@@ -347,7 +389,6 @@ async function loadIoTData() {
 
     } catch (err) { console.error("Error IoT:", err); }
 }
-
 // ==================================================================
 // 6. GESTIÓN DE LEYENDAS Y UI
 // ==================================================================

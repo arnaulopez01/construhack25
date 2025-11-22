@@ -26,19 +26,21 @@
       },
       "properties": {
         "id_obra": "OBRA_Rambla_Modolell",
-        "nombre": "Renovación Urbana Rambla Modolell",
+        "nombre": "Peatonalización y Mejora de Accesibilidad Rambla Modolell",
         "barrio": "Barri Antic",
+        "imagen_render_url": "https://i0.wp.com/viladecans.news/wp-content/uploads/2023/06/Nueva-Rambla-Modolell-Viladecans-News.jpg?w=1200&ssl=1",
+        "bim_asset_id": null,
         "expediente_detalle": {
           "expediente_numero": "OM/2025/0045",
-          "promotor": "Administración Municipal (Infraestructuras)",
-          "tipo_licencia": "Obra Pública Mayor (Urbanización)",
+          "promotor": "Administración Municipal (Servicios Urbanos)",
+          "tipo_licencia": "Obra Pública Mayor (Urbanización y Peatonalización)",
           "ambito": "Reforma integral del tramo central de la Rambla.",
-          "descripcion": "Renovación de pavimento, ampliación de aceras y sistema de saneamiento.",
-          "plazo_ejecucion_dias": 120,
-          "presupuesto_ejecucion": 1250000.00,
-          "materiales_clave": "Granito pulido, Asfalto fonoreductor.",
-          "fecha_concesion_licencia": "2025-09-01",
-          "estado_expediente": "Acabada" 
+          "descripcion": "Transformación de la calzada en zona peatonal, eliminación de barreras arquitectónicas, plantación de nuevo arbolado (plataneros y tilos) e instalación de nuevo mobiliario urbano. El objetivo es priorizar el uso peatonal y la sostenibilidad.",
+          "plazo_ejecucion_dias": 180,
+          "presupuesto_ejecucion": 1550000.00,
+          "materiales_clave": "Piedra natural antideslizante, Granito para bordillos, Sistema de riego subterráneo.",
+          "fecha_concesion_licencia": "2024-10-01",
+          "estado_expediente": "Acabada"
         }
       }
     },
@@ -62,19 +64,21 @@
       },
       "properties": {
         "id_obra": "OBRA_Plaça_Saint_Herblain",
-        "nombre": "Edificación Nueva Pl. Saint Herblain",
+        "nombre": "Renaturalización y Nuevo Parque Infantil Plaça Saint Herblain",
         "barrio": "Barri de Llevant",
+        "imagen_render_url": "https://pbs.twimg.com/media/GRqubhxW4AAsr4X?format=jpg&name=large",
+        "bim_asset_id": "VLDC_OM_2024_0210_Plaza_V3.0.glb",
         "expediente_detalle": {
           "expediente_numero": "OM/2024/0210",
-          "promotor": "Promotora Habitat S.L.",
-          "tipo_licencia": "Obra Mayor (Edificación Residencial)",
-          "ambito": "Construcción en Parcela 3B, esquina Pl. Saint Herblain.",
-          "descripcion": "Edificio plurifamiliar de planta baja + 4, con aparcamiento subterráneo.",
-          "plazo_ejecucion_dias": 480,
-          "presupuesto_ejecucion": 3800000.00,
-          "materiales_clave": "Hormigón armado, Ladrillo cerámico, Aislamiento térmico SATE.",
+          "promotor": "Ayuntamiento de Viladecans (Urbanismo)",
+          "tipo_licencia": "Obra Pública Mayor (Renaturalización y Reurbanización)",
+          "ambito": "Reforma completa de la Plaça Saint Herblain.",
+          "descripcion": "Proyecto de naturalización: instalación de gran superficie de césped natural, creación de un jardín sensorial con especies de bajo consumo hídrico, y construcción de un parque infantil inclusivo de gran formato. Mejora del arbolado existente.",
+          "plazo_ejecucion_dias": 210,
+          "presupuesto_ejecucion": 1120000.00,
+          "materiales_clave": "Sustrato poroso, Césped natural, Madera de pino tratada, Caucho amortiguador reciclado, Árboles de sombra.",
           "fecha_concesion_licencia": "2024-11-20",
-          "estado_expediente": "En Progreso" 
+          "estado_expediente": "En Progreso"
         }
       }
     },
@@ -84,27 +88,33 @@
         "type": "Polygon",
         "coordinates": [
           [
-            [2.0276704889440524, 41.32265366510488],
-            [2.028134879630932, 41.32294493709378],
-            [2.0287829459043, 41.32261847402845],
-            [2.028256433036444, 41.32226168355212],
-            [2.0276704889440524, 41.32265366510488]
+            [2.027594438908636, 41.32263439023191],
+            [2.028297880083926, 41.3220968870379],
+            [2.0288949871276714, 41.32252688994805],
+            [2.028849999611026, 41.32265589026764],
+            [2.0288459098364626, 41.32278796175913],
+            [2.028751845027699, 41.322867818810494],
+            [2.0280197754331084, 41.323073603837],
+            [2.0279584288190904, 41.322926175823795],
+            [2.027594438908636, 41.32263439023191]
           ]
         ]
       },
       "properties": {
-        "id_obra": "OBRA_Barri_de_Llevant",
-        "nombre": "Vivienda Social Barri de Llevant",
+        "id_obra": "OBRA_Barri_de_Llevant_Residencial",
+        "nombre": "Nueva vivienda social - Barri de Llevant",
         "barrio": "Barri de Llevant",
+        "imagen_render_url": "https://www.premierinmobiliaria.es/uploads/images/6694f8b4ee3c3_Ext_Llevant_Tower_01.jpg",
+        "bim_asset_id": "VLDC_OE_2026_0010_Mixto.i3s",
         "expediente_detalle": {
           "expediente_numero": "OE/2026/0010",
-          "promotor": "Consorcio Metropolitano de Vivienda",
-          "tipo_licencia": "Obra Mayor (Vivienda Social Protegida)",
-          "ambito": "Solar en la Avinguda de la Generalitat.",
-          "descripcion": "Construcción de edificio de consumo energético casi nulo (NZEB) con certificación Passivhaus.",
-          "plazo_ejecucion_dias": 550,
-          "presupuesto_ejecucion": 5500000.00,
-          "materiales_clave": "Madera contralaminada (CLT) y fachada ventilada.",
+          "promotor": "Instituto Metropolitano de la Vivienda y Promotora Privada S.A.",
+          "tipo_licencia": "Obra Mayor (Edificación Residencial, Uso Mixto VP/VL)",
+          "ambito": "Solar estratégico en la Avinguda de la Generalitat, Barri de Llevant.",
+          "descripcion": "Construcción de dos bloques de edificios residenciales (uno de vivienda libre y otro de vivienda protegida) que suman un total de 120 unidades habitacionales. Altura máxima de 30 metros.",
+          "plazo_ejecucion_dias": 750,
+          "presupuesto_ejecucion": 15000000.00,
+          "materiales_clave": "Estructura de hormigón armado, Fachada SATE (Sistema de Aislamiento Térmico Exterior), Paneles solares fotovoltaicos, Carpintería de aluminio de alta eficiencia.",
           "fecha_concesion_licencia": "2026-03-01",
           "estado_expediente": "A Futuro"
         }

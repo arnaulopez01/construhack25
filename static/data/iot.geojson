@@ -5,12 +5,13 @@
       "type": "Feature",
       "geometry": {
         "type": "Point",
-        "coordinates": [2.0186264054201284, 41.31903254714445]
+        "coordinates": [2.020844008424044, 41.31718062679987]
       },
       "properties": {
         "id_obra": "OBRA_Rambla_Modolell",
         "nombre": "Rambla Modolell (Obra)",
         "tipo_sensor": "Simulació Ambiental",
+        "foto_sensor": "https://medias.netatmo.com/content/a8d528aa-88a6-41d5-9946-859079a7b77d.jpg/:/rs=w:968,h:545,ft:cover,i:true/fm=f:jpg",
         "fecha_medicion": "2025-11-23 12:00",
         "NO2": 18.50,
         "O3": 35.10,
@@ -30,12 +31,13 @@
       "type": "Feature",
       "geometry": {
         "type": "Point",
-        "coordinates": [2.022012508952257, 41.31488834668358]
+        "coordinates": [2.0223114865076455, 41.31423408303848]
       },
       "properties": {
         "id_obra": "OBRA_Plaça_Saint_Herblain",
         "nombre": "Plaça Saint Herblain (Obra)",
         "tipo_sensor": "Simulació Ambiental",
+        "foto_sensor": "https://medias.netatmo.com/content/a8d528aa-88a6-41d5-9946-859079a7b77d.jpg/:/rs=w:968,h:545,ft:cover,i:true/fm=f:jpg",
         "fecha_medicion": "2025-11-23 12:00",
         "NO2": 95.50,
         "O3": 60.55,
@@ -61,6 +63,7 @@
         "id_obra": "OBRA_Barri_de_Llevant",
         "nombre": "Barri de Llevant (Obra)",
         "tipo_sensor": "Simulació Ambiental",
+        "foto_sensor": "https://medias.netatmo.com/content/a8d528aa-88a6-41d5-9946-859079a7b77d.jpg/:/rs=w:968,h:545,ft:cover,i:true/fm=f:jpg",
         "fecha_medicion": "2025-11-23 12:00",
         "NO2": 55.00,
         "O3": 85.00,
