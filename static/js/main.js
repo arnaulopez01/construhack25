@@ -456,12 +456,32 @@ els.buildingsCheck.addEventListener('change', e => {
     updateLegendDisplay();
 });
 
+// Listener para Obras (Actualizado para controlar también la línea de Gemini)
 els.obrasCheck.addEventListener('change', e => {
-    if(!map.getSource('obras-source')) loadObrasData();
-    else {
-        map.setLayoutProperty('obras-fill', 'visibility', e.target.checked?'visible':'none');
-        map.setLayoutProperty('obras-line', 'visibility', e.target.checked?'visible':'none');
+    const visibility = e.target.checked ? 'visible' : 'none';
+
+    // 1. Gestión de la capa principal de Obras
+    if(!map.getSource('obras-source')) {
+        // Si es la primera vez, cargamos los datos (se mostrarán visibles por defecto)
+        loadObrasData(); 
+    } else {
+        // Si ya existen, cambiamos su visibilidad
+        if (map.getLayer('obras-fill')) map.setLayoutProperty('obras-fill', 'visibility', visibility);
+        if (map.getLayer('obras-line')) map.setLayoutProperty('obras-line', 'visibility', visibility);
     }
+
+    // 2. Gestión de las capas generadas por la IA (Línea roja y buffer)
+    // Si existen en el mapa, obedecen al mismo checkbox
+    if (map.getLayer('gemini-line')) {
+        map.setLayoutProperty('gemini-line', 'visibility', visibility);
+    }
+    if (map.getLayer('gemini-buffer-fill')) {
+        map.setLayoutProperty('gemini-buffer-fill', 'visibility', visibility);
+    }
+    if (map.getLayer('gemini-highlight')) {
+        map.setLayoutProperty('gemini-highlight', 'visibility', visibility);
+    }
+
     updateLegendDisplay();
 });
 
@@ -495,7 +515,7 @@ bimCheck.addEventListener('change', (e) => {
         // Activar Capa
         if (!map.getLayer('bim-layer-3d')) {
             // IMPORTANTE: bimLayer es la variable que definimos en el otro archivo
-            map.addLayer(bimLayer, 'edificios-layer'); // Añadir debajo de los edificios 3D normales si quieres
+            map.addLayer(bimLayer); // Añadir debajo de los edificios 3D normales si quieres
 
             // Volamos a la ubicación del BIM para verlo
             map.flyTo({
@@ -618,10 +638,31 @@ function handleGeminiMapUpdate(mapData) {
         });
     }
 
-    // 5. AÑADIR BUFFER (Línea roja debajo de los edificios)
+    // 5. AÑADIR BUFFER (Línea roja debajo de los edificios y todo lo demás)
     if (mapData.layers && mapData.layers.buffer) {
         map.addSource('gemini-buffer-source', { type: 'geojson', data: mapData.layers.buffer });
         
+        // ESTRATEGIA: Buscar la capa más baja posible para poner esta línea "en el suelo"
+        // En tu setupCoreLayers, el orden es: catastro -> poblacion -> edificios.
+        // Intentamos insertar ANTES de 'catastro-layer' para que quede al fondo.
+        let bottomLayerId = 'catastro-layer';
+        
+        // Si por lo que sea catastro no existe, probamos con la siguiente
+        if (!map.getLayer(bottomLayerId)) bottomLayerId = 'poblacion-heatmap';
+        if (!map.getLayer(bottomLayerId)) bottomLayerId = 'edificios-layer';
+
+        // AÑADIR RELLENO (Fill) semitransparente (Opcional, queda mejor visualmente)
+        map.addLayer({
+            'id': 'gemini-buffer-fill',
+            'type': 'fill',
+            'source': 'gemini-buffer-source',
+            'paint': {
+                'fill-color': '#FF3333',
+                'fill-opacity': 0.1 // Muy suave
+            }
+        }, bottomLayerId); // <--- Insertar al fondo
+
+        // AÑADIR LÍNEA (Line)
         map.addLayer({
             'id': 'gemini-line',
             'type': 'line',
@@ -629,10 +670,10 @@ function handleGeminiMapUpdate(mapData) {
             'layout': { 'line-join': 'round', 'line-cap': 'round' },
             'paint': {
                 'line-color': '#FF3333', 
-                'line-width': 4,
+                'line-width': 3,
                 'line-dasharray': [2, 2]
             }
-        }, 'gemini-highlight'); // Ponemos la línea DEBAJO de los edificios destacados
+        }, bottomLayerId); // <--- Insertar al fondo
     }
 
     // 6. ZOOM

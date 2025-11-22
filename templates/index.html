@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SmartVisio</title>
+    <title>SmartVision</title>
     <link href="https://unpkg.com/maplibre-gl@3.6.2/dist/maplibre-gl.css" rel="stylesheet" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
@@ -14,7 +14,7 @@
     <header class="app-header">
         <div class="header-logo">
             <i class="fa-solid fa-map-location-dot"></i> 
-            <span>SmartVisio <small>beta</small></span>
+            <span>SmartVision<small>beta</small></span>
         </div>
         
         <div class="gemini-search-container">
@@ -49,17 +49,16 @@
             <label class="layer-option"><input type="checkbox" id="population-points-checkbox"> Población (Puntos)</label>
             <label class="layer-option"><input type="checkbox" id="population-heatmap-checkbox"> Población (Calor)</label>
             <hr>
-            <h4>Sensores IoT</h4>
+            <h4>Sensorica</h4>
             <label class="layer-option"><input type="checkbox" id="iot-checkbox"> Calidad Aire (Semáforo)</label>
             <label class="layer-option"><input type="checkbox" id="cameras-checkbox"> Cámaras DGT</label>
             <hr>
-            <h4>Urbanismo</h4>
+            <h4>Urbanismo y entorno</h4>
             <label class="layer-option"><input type="checkbox" id="obras-checkbox"> Obras en Curso</label>
-            <hr>
-            <h4>Entorno</h4>
+            <label class="layer-option"><input type="checkbox" id="bim-checkbox"> Torre Llevant (BIM)</label>
             <label class="layer-option"><input type="checkbox" id="terrain-3d-checkbox"> Relieve 3D (DTM)</label>
             <label class="layer-option"><input type="checkbox" id="catastro-checkbox"> Catastro (WMS)</label>
-            <label class="layer-option"><input type="checkbox" id="bim-checkbox"> Torre Llevant (BIM)</label>
+            
         </div>
 
         <div id="building-legend" class="map-overlay legend" style="display: none;">
