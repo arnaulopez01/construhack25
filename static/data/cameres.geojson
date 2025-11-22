@@ -1,0 +1,30 @@
+{
+  "type": "FeatureCollection",
+  "name": "dgt_cameras_viladecans_c31",
+  "crs": {
+    "type": "name",
+    "properties": {
+      "name": "urn:ogc:def:crs:OGC:1.3:CRS84"
+    }
+  },
+  "features": [
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "DGT_C31_18894",
+        "nombre": "C-31 (Pk 188.94) Viladecans",
+        "carretera": "C-31",
+        "pk": "188.94",
+        "estado": "Activa",
+        "imagen_url": "https://mct.gencat.cat/mct2bo/TransitCamera?nom=sc12.jpg&time1763823027605&visualitzacio=imatge"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          2.059208126,
+          41.291512261
+        ]
+      }
+    }
+  ]
+}

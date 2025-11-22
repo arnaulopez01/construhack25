@@ -73,6 +73,8 @@ const els = {
     iotCheck: document.getElementById('iot-checkbox'),
     popPointsCheck: document.getElementById('population-points-checkbox'),
     popHeatCheck: document.getElementById('population-heatmap-checkbox'),
+
+    camerasCheck: document.getElementById('cameras-checkbox'),
     
     layersPanel: document.getElementById('layers-panel'),
     legendContainer: document.getElementById('legends-container'),
@@ -475,6 +477,16 @@ els.popHeatCheck.addEventListener('change', e => {
     els.heatmapControls.style.display = e.target.checked?'block':'none';
 });
 
+// Listener para Cámaras
+els.camerasCheck.addEventListener('change', e => {
+    if (!map.getSource('cameras-source')) {
+        loadCamerasData(); // Primera carga
+    } else {
+        // Toggle visibilidad si ya está cargada
+        map.setLayoutProperty('cameras-layer', 'visibility', e.target.checked ? 'visible' : 'none');
+    }
+});
+
 document.getElementById('heatmap-radius').addEventListener('input', e => map.setPaintProperty('poblacion-heatmap', 'heatmap-radius', parseFloat(e.target.value)));
 document.getElementById('heatmap-intensity').addEventListener('input', e => map.setPaintProperty('poblacion-heatmap', 'heatmap-intensity', parseFloat(e.target.value)));
 document.getElementById('toggle-3d').addEventListener('click', () => { const p=map.getPitch(); map.easeTo({pitch:p>0?0:60,bearing:p>0?0:-20}); });
@@ -597,6 +609,74 @@ function handleGeminiMapUpdate(mapData) {
     // 6. ZOOM
     if (mapData.bounds) {
         map.fitBounds(mapData.bounds, { padding: 150, maxZoom: 18, duration: 2000 });
+    }
+}
+
+// ==================================================================
+// 10: CÁMARAS DGT
+// ==================================================================
+
+async function loadCamerasData() {
+    // Evitar recargar si ya existe
+    if (map.getSource('cameras-source')) return;
+
+    try {
+        const response = await fetch('static/data/cameres.geojson');
+        const data = await response.json();
+
+        map.addSource('cameras-source', { 'type': 'geojson', 'data': data });
+
+        // Capa visual: Círculo violeta con borde blanco
+        map.addLayer({
+            'id': 'cameras-layer',
+            'type': 'circle',
+            'source': 'cameras-source',
+            'layout': { 'visibility': 'visible' },
+            'paint': {
+                'circle-radius': 7,
+                'circle-color': '#7E57C2',       // Violeta
+                'circle-stroke-width': 2,
+                'circle-stroke-color': '#FFFFFF'
+            }
+        });
+
+        // Cursor pointer al pasar por encima
+        map.on('mouseenter', 'cameras-layer', () => map.getCanvas().style.cursor = 'pointer');
+        map.on('mouseleave', 'cameras-layer', () => map.getCanvas().style.cursor = '');
+
+        // Click: Mostrar Popup con la IMAGEN
+        map.on('click', 'cameras-layer', (e) => {
+            const p = e.features[0].properties;
+            
+            // Truco: Añadimos un timestamp aleatorio al final de la URL para evitar caché del navegador
+            // si la cámara actualiza la imagen con el mismo nombre de archivo.
+            const imgUrl = `${p.imagen_url}&t=${new Date().getTime()}`;
+
+            const html = `
+                <div class="popup-header" style="background:#5e35b1; color:white;">
+                    <i class="fa-solid fa-video"></i> ${p.carretera} - PK ${p.pk}
+                </div>
+                <div class="popup-body" style="padding:0;">
+            
+                    <div style="width:100%; min-width:250px; min-height:180px; background:#eee; text-align:center; display:flex; align-items:center; justify-content:center;">
+                        <img src="${imgUrl}" 
+                             style="width:100%; height:auto; display:block;" 
+                             alt="Imagen no disponible"
+                             onerror="this.src='https://placehold.co/300x200?text=Sin+Señal';">
+                    </div>
+                    <div style="padding:5px 10px; font-size:11px; color:#666;">
+                        Estado: <b>${p.estado}</b> | ID: ${p.id}
+                    </div>
+                </div>`;
+
+            new maplibregl.Popup({ className: 'custom-popup', maxWidth: '300px' })
+                .setLngLat(e.lngLat)
+                .setHTML(html)
+                .addTo(map);
+        });
+
+    } catch (err) {
+        console.error("Error cargando Cámaras:", err);
     }
 }
 
