@@ -8,32 +8,47 @@ body, html {
     width: 100%; 
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
     overflow: hidden; /* Evita scrollbars */
+    /* Fondo gris muy claro detrás de todo para que los elementos blancos resalten */
+    background-color: #ffffff; 
 }
 
-/* Nuevo Header: Estilo Dashboard
-   Altura fija de 60px
-*/
+/* Nuevo Header: Estilo Dashboard Blanco */
 .app-header {
     height: 60px;
-    background-color: #1e293b; /* Azul oscuro (Slate) */
-    color: white;
+    background-color: #ffffff; /* FONDO BLANCO */
+    color: #1e293b;            /* Texto Azul Oscuro (Slate 800) */
     display: flex;
     align-items: center;
     justify-content: space-between;
     padding: 0 20px;
-    box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+    box-shadow: 0 1px 3px rgba(0,0,0,0.05); /* Sombra muy sutil */
     position: relative;
-    z-index: 100; /* Asegura que esté sobre el mapa */
+    z-index: 100;
 }
 
-/* Contenedor del Mapa
-   IMPORTANTE: Restamos los 60px del header a la altura total (100vh)
-*/
+/* Contenedor del Mapa FLOTANTE */
 #map { 
-    width: 100%; 
-    height: calc(100vh - 60px); 
+    /* Ancho: 100% menos 20px (10px de cada lado) */
+    width: calc(100% - 20px); 
+    
+    /* Altura: 100vh - Header(60) - MargenSup(10) - MargenInf(10) = 80px */
+    height: calc(100vh - 80px); 
+    
+    /* Centrado con margen */
+    margin: 10px auto; 
+    
+    /* Esquinas redondeadas */
+    border-radius: 16px; 
+    
+    overflow: hidden; 
     position: relative; 
-    background-color: #f0f0f0; /* Fondo por si tarda en cargar */
+    
+    /* CAMBIO: Fondo blanco puro (se ve mientras cargan los tiles) */
+    background-color: #ffffff; 
+    
+    /* Sombra para dar efecto de elevación sobre el fondo gris del body */
+    box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+    border: 1px solid rgba(255,255,255,0.5);
 }
 
 /* =========================================
@@ -45,20 +60,23 @@ body, html {
     display: flex;
     align-items: center;
     gap: 12px;
-    font-weight: 600;
+    font-weight: 700;
     font-size: 18px;
     min-width: 200px;
+    color: #1e293b; /* Azul oscuro */
 }
-.header-logo i { color: #60a5fa; font-size: 20px; }
+.header-logo i { color: #3b82f6; font-size: 20px; }
 .header-logo span small {
-    background: #3b82f6;
-    color: white;
+    background: #eff6ff; /* Azul muy pálido */
+    color: #1e293b;      /* Texto oscuro */
+    border: 1px solid #bfdbfe;
     font-size: 10px;
     padding: 2px 6px;
     border-radius: 4px;
     margin-left: 5px;
     text-transform: uppercase;
     vertical-align: middle;
+    font-weight: 600;
 }
 
 /* Barra de Chat (Gemini) Central */
@@ -72,37 +90,39 @@ body, html {
 .search-wrapper {
     position: relative;
     width: 100%;
-    max-width: 600px; /* Ancho máximo del buscador */
+    max-width: 600px; 
     display: flex;
     align-items: center;
 }
 
 .search-wrapper input {
     width: 100%;
-    padding: 10px 45px 10px 40px; /* Espacio para iconos */
+    padding: 10px 45px 10px 40px; 
     border-radius: 20px;
-    border: 1px solid #475569; /* Borde sutil */
-    background-color: #334155; /* Input oscuro */
-    color: white;
+    /* Estilo Light Mode */
+    border: 1px solid #cbd5e1; 
+    background-color: #f1f5f9; /* Gris claro */
+    color: #0f172a;            /* Texto oscuro */
     font-size: 14px;
     outline: none;
     transition: all 0.3s ease;
 }
 
-.search-wrapper input::placeholder { color: #94a3b8; }
+.search-wrapper input::placeholder { color: #64748b; }
 
 .search-wrapper input:focus {
-    background-color: #40526b;
-    border-color: #60a5fa;
-    box-shadow: 0 0 0 3px rgba(96, 165, 250, 0.2);
+    background-color: #ffffff;
+    border-color: #3b82f6;
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15);
 }
 
 /* Icono de Google/Gemini a la izquierda */
 .search-icon {
     position: absolute;
     left: 15px;
-    color: #94a3b8;
+    color: #64748b;
     font-size: 14px;
+    pointer-events: none;
 }
 
 /* Botón de enviar a la derecha */
@@ -113,20 +133,20 @@ body, html {
     transform: translateY(-50%);
     background: transparent;
     border: none;
-    color: #60a5fa;
+    color: #2563eb; /* Azul más vivo */
     cursor: pointer;
     padding: 6px 10px;
     border-radius: 50%;
-    font-size: 14px;
+    font-size: 15px;
     transition: background 0.2s;
 }
-#btn-send-prompt:hover { background: rgba(255,255,255,0.1); }
+#btn-send-prompt:hover { background: #eff6ff; }
 
 /* Acciones derecha (Settings) */
 .header-actions .icon-btn {
     background: transparent;
     border: none;
-    color: #cbd5e1;
+    color: #1e293b; /* Iconos oscuros */
     font-size: 18px;
     cursor: pointer;
     padding: 8px;
@@ -134,8 +154,8 @@ body, html {
     transition: all 0.2s;
 }
 .header-actions .icon-btn:hover {
-    background: rgba(255,255,255,0.1);
-    color: white;
+    background: rgba(30, 41, 59, 0.08); /* Gris suave */
+    color: #000;
 }
 
 
@@ -155,7 +175,8 @@ body, html {
 }
 .map-buttons button {
     width: 40px; height: 40px; border: none; background: white;
-    border-radius: 8px; box-shadow: 0 2px 6px rgba(0,0,0,0.15);
+    border-radius: 10px;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.15);
     cursor: pointer; font-size: 16px; color: #444;
     transition: all 0.2s ease;
     display: flex; align-items: center; justify-content: center;
@@ -166,16 +187,16 @@ body, html {
 #layers-panel {
     position: absolute; 
     top: 20px; 
-    right: 75px; /* A la izquierda de los botones */
-    background: rgba(255, 255, 255, 0.98); 
+    right: 75px; 
+    background: rgba(255, 255, 255, 0.95); 
     padding: 20px;
-    border-radius: 8px; 
-    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    border-radius: 12px; 
+    box-shadow: 0 4px 15px rgba(0,0,0,0.15);
     width: 220px; 
     z-index: 10; 
     display: none;
-    backdrop-filter: blur(4px);
-    max-height: calc(100% - 40px); /* Evita que se salga si hay muchas capas */
+    backdrop-filter: blur(5px);
+    max-height: calc(100% - 40px);
     overflow-y: auto;
 }
 #layers-panel h4 { margin: 15px 0 8px 0; color: #333; font-size: 12px; text-transform: uppercase; letter-spacing: 0.5px; font-weight: 700; }
@@ -191,39 +212,43 @@ hr { border: 0; border-top: 1px solid #eee; margin: 12px 0; }
 .map-overlay {
     position: absolute;
     background: rgba(255, 255, 255, 0.95);
-    border-radius: 8px;
+    border-radius: 10px;
     box-shadow: 0 2px 10px rgba(0,0,0,0.1);
     padding: 15px;
     z-index: 5;
+    backdrop-filter: blur(4px);
 }
 
 /* Leyenda de Edificios */
 .legend { bottom: 30px; right: 20px; width: 180px; }
-.legend h4 { margin: 0 0 12px; font-size: 13px; font-weight: bold; }
+.legend h4 { margin: 0 0 12px; font-size: 13px; font-weight: bold; color: #1e293b; }
 .legend-item { display: flex; align-items: center; margin-bottom: 6px; font-size: 12px; color: #444; }
 .legend-color { width: 16px; height: 16px; margin-right: 10px; border-radius: 4px; }
 
 /* Leyenda IoT */
 .legend-iot { bottom: 30px; left: 20px; width: 180px; }
-.legend-iot h4 { margin: 0 0 12px; font-size: 13px; font-weight: bold; }
+.legend-iot h4 { margin: 0 0 12px; font-size: 13px; font-weight: bold; color: #1e293b; }
 .legend-iot-item { display: flex; align-items: center; margin-bottom: 6px; font-size: 12px; color: #444; }
 .legend-iot-color { width: 16px; height: 16px; margin-right: 10px; border-radius: 4px; }
 
-/* Controles Heatmap (Misma posición que IoT, cuidado al activar ambas) */
-.controls { bottom: 30px; left: 220px; width: 220px; } /* Movido un poco a la derecha para no solapar IoT */
-.controls h4 { margin: 0 0 12px; font-size: 13px; font-weight: bold; }
+/* Controles Heatmap */
+.controls { bottom: 30px; left: 220px; width: 220px; } 
+.controls h4 { margin: 0 0 12px; font-size: 13px; font-weight: bold; color: #1e293b; }
 .slider-group { margin-bottom: 12px; }
 .slider-group label { display: block; font-size: 11px; color: #666; margin-bottom: 4px; font-weight: 600; }
 .slider-group input { width: 100%; cursor: pointer; }
 
 
 /* =========================================
-   5. POPUPS (PERSONALIZADOS)
+   5. POPUPS DEL MAPA
    ========================================= */
+.maplibregl-map{
+    background-color: white;
+}
 .maplibregl-popup { z-index: 20; }
 .maplibregl-popup-content {
     padding: 0;
-    border-radius: 8px;
+    border-radius: 10px;
     overflow: hidden;
     box-shadow: 0 4px 20px rgba(0,0,0,0.25);
     font-family: 'Segoe UI', sans-serif;
@@ -246,7 +271,7 @@ hr { border: 0; border-top: 1px solid #eee; margin: 12px 0; }
     color: white;
     font-weight: bold;
     font-size: 14px;
-    background: #555; 
+    background: #334155; /* Este se queda oscuro para contraste visual del popup */
     display: flex; 
     align-items: center; 
     gap: 8px;
@@ -264,33 +289,43 @@ hr { border: 0; border-top: 1px solid #eee; margin: 12px 0; }
 .popup-row:last-child { border-bottom: none; margin-bottom: 0; }
 .popup-label { font-weight: 600; color: #333; }
 .popup-value { color: #666; text-align: right; }
-
-/* Estilo específico para popup de Obras (si quieres distinguirlo más) */
 .custom-popup .popup-value { font-family: monospace; font-size: 12px; }
 
-/* Chat Overlay Styles */
+/* =========================================
+   6. CHAT OVERLAY (VENTANA RESPUESTA GEMINI)
+   ========================================= */
 .chat-overlay {
     position: absolute;
     bottom: 30px;
     left: 50%;
-    transform: translateX(-50%); /* Centrado horizontal exacto */
+    transform: translateX(-50%); 
     width: 90%;
     max-width: 600px;
-    background: rgba(255, 255, 255, 0.95);
-    backdrop-filter: blur(10px);
-    border-radius: 12px;
-    box-shadow: 0 8px 32px rgba(0,0,0,0.2);
-    z-index: 2000; /* Por encima del mapa */
+    
+    /* Fondo blanco */
+    background: #ffffff; 
+    
+    border-radius: 16px;
+    box-shadow: 0 10px 40px rgba(0,0,0,0.15);
+    border: 1px solid rgba(0,0,0,0.05);
+    
+    z-index: 2000;
     overflow: hidden;
-    border: 1px solid rgba(0,0,0,0.1);
     animation: slideUp 0.3s ease-out;
+    display: flex;
+    flex-direction: column;
 }
 
 .chat-header {
-    background: #2c3e50;
-    color: white;
-    padding: 10px 15px;
-    font-size: 0.9rem;
+    /* Fondo blanco y borde inferior sutil */
+    background: #ffffff;
+    border-bottom: 1px solid #f1f5f9;
+    
+    color: #1e293b; /* Texto oscuro */
+    font-weight: 700;
+    
+    padding: 15px 20px;
+    font-size: 0.95rem;
     display: flex;
     justify-content: space-between;
     align-items: center;
@@ -299,18 +334,30 @@ hr { border: 0; border-top: 1px solid #eee; margin: 12px 0; }
 .chat-header button {
     background: none;
     border: none;
-    color: white;
+    color: #64748b; /* Icono gris */
     cursor: pointer;
-    font-size: 1rem;
+    font-size: 1.2rem;
+    padding: 4px;
+    border-radius: 50%;
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.chat-header button:hover {
+    background-color: #fef2f2; 
+    color: #ef4444; /* Rojo al pasar mouse */
 }
 
 .chat-content {
     padding: 20px;
-    color: #333;
-    font-size: 1rem;
-    line-height: 1.5;
+    color: #334155; /* Texto oscuro */
+    font-size: 0.95rem;
+    line-height: 1.6;
     max-height: 300px;
     overflow-y: auto;
+    background: #ffffff;
 }
 
 @keyframes slideUp {

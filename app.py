@@ -61,7 +61,7 @@ def ejecutar_analisis_afectacion(nombre_obra: str):
     
     # 2. Buffer
     geom_utm = gpd.GeoSeries([obra.geometry], crs="EPSG:4326").to_crs(epsg=25831)
-    buffer_utm = geom_utm.buffer(20, join_style=2) 
+    buffer_utm = geom_utm.buffer(30, join_style=2) 
     
     # 3. Intersección 1: BUFFER vs EDIFICIOS
     gdf_buffer = gpd.GeoDataFrame(geometry=buffer_utm, crs="EPSG:25831")
