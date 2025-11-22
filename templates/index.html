@@ -7,6 +7,7 @@
     <link href="https://unpkg.com/maplibre-gl@3.6.2/dist/maplibre-gl.css" rel="stylesheet" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+    <script src="https://unpkg.com/three@0.147.0/build/three.min.js"></script>
 </head>
 <body>
 
@@ -58,6 +59,7 @@
             <h4>Entorno</h4>
             <label class="layer-option"><input type="checkbox" id="terrain-3d-checkbox"> Relieve 3D (DTM)</label>
             <label class="layer-option"><input type="checkbox" id="catastro-checkbox"> Catastro (WMS)</label>
+            <label class="layer-option"><input type="checkbox" id="bim-checkbox"> Torre Llevant (BIM)</label>
         </div>
 
         <div id="building-legend" class="map-overlay legend" style="display: none;">
@@ -96,6 +98,8 @@
         </div>
     </div>
 
+    <div id="bim-popup" class="map-overlay" style="display: none; position: absolute; background: #2c3e50; color: white; padding: 10px; border-radius: 5px; z-index: 1000; pointer-events: none; max-width: 250px;"></div>
+
     <script src="https://unpkg.com/maplibre-gl@3.6.2/dist/maplibre-gl.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/proj4js/2.9.0/proj4.js"></script>
 
@@ -107,6 +111,7 @@
             maptilerKey: "{{ maptiler_api_key }}"
         };
     </script>
+    <script src="{{ url_for('static', filename='js/bim_model.js') }}"></script>
     <script src="{{ url_for('static', filename='js/main.js') }}"></script>
 
 </body>

@@ -487,6 +487,35 @@ els.camerasCheck.addEventListener('change', e => {
     }
 });
 
+// Referencia al checkbox
+const bimCheck = document.getElementById('bim-checkbox');
+
+bimCheck.addEventListener('change', (e) => {
+    if (e.target.checked) {
+        // Activar Capa
+        if (!map.getLayer('bim-layer-3d')) {
+            // IMPORTANTE: bimLayer es la variable que definimos en el otro archivo
+            map.addLayer(bimLayer, 'edificios-layer'); // Añadir debajo de los edificios 3D normales si quieres
+
+            // Volamos a la ubicación del BIM para verlo
+            map.flyTo({
+                center: [2.028238, 41.322620],
+                zoom: 18,
+                pitch: 60,
+                bearing: -45
+            });
+        }
+    } else {
+        // Desactivar Capa
+        if (map.getLayer('bim-layer-3d')) {
+            map.removeLayer('bim-layer-3d');
+            // Nota: MapLibre no elimina automáticamente los listeners de click del objeto bimLayer,
+            // pero como la capa visual no está, no molestará mucho.
+            // Para ser limpios, deberíamos manejar el remove del listener en el objeto bimLayer.
+        }
+    }
+});
+
 document.getElementById('heatmap-radius').addEventListener('input', e => map.setPaintProperty('poblacion-heatmap', 'heatmap-radius', parseFloat(e.target.value)));
 document.getElementById('heatmap-intensity').addEventListener('input', e => map.setPaintProperty('poblacion-heatmap', 'heatmap-intensity', parseFloat(e.target.value)));
 document.getElementById('toggle-3d').addEventListener('click', () => { const p=map.getPitch(); map.easeTo({pitch:p>0?0:60,bearing:p>0?0:-20}); });
