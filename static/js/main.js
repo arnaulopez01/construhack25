@@ -385,50 +385,75 @@ async function loadIoTData() {
     } catch (err) { console.error("Error IoT:", err); }
 }
 // ==================================================================
-// 6. GESTIÓN DE LEYENDAS Y UI
+// 6. GESTIÓN DE LEYENDAS Y UI (RESTAURADO)
 // ==================================================================
 
-function setupBuildingInteractions() {
-    map.on('click', 'edificios-layer', (e) => {
-        const p = e.features[0].properties;
-        const color = BUILDING_COLORS[p.currentUse] || BUILDING_COLORS.default;
-        const html = `<div class="popup-header" style="background:${color};color:#444;">${USAGE_LABELS[p.currentUse]||'Otro'}</div>
-                      <div class="popup-body">Ref: ${p.reference}<br>Sup: ${Math.round(p.value)} m²<br>Uso: ${p.currentUse}</div>`;
-        new maplibregl.Popup({className:'custom-popup'}).setLngLat(e.lngLat).setHTML(html).addTo(map);
-    });
-    map.on('mouseenter', 'edificios-layer', () => map.getCanvas().style.cursor = 'pointer');
-    map.on('mouseleave', 'edificios-layer', () => map.getCanvas().style.cursor = '');
-}
-
+// 1. LEYENDA DE EDIFICIOS (Usos)
 function buildStaticLegends() {
+    const container = document.getElementById('legend-content');
+    if (!container) return;
+
     let html = '';
     Object.keys(BUILDING_COLORS).forEach(k => {
-        if(k!=='default') html += `<div class="legend-item"><span class="legend-color" style="background:${BUILDING_COLORS[k]}"></span><span>${USAGE_LABELS[k]}</span></div>`;
+        // Filtramos el color por defecto si quieres, o lo dejas
+        if (k !== 'default') {
+            html += `
+            <div class="legend-item" style="display: flex; align-items: center; margin-bottom: 5px;">
+                <span style="background:${BUILDING_COLORS[k]}; width: 15px; height: 15px; display: inline-block; margin-right: 8px; border-radius: 3px; border: 1px solid #ccc;"></span>
+                <span style="font-size: 12px; color: #333;">${USAGE_LABELS[k] || k}</span>
+            </div>`;
+        }
     });
-    els.legContentBuildings.innerHTML = html;
+    
+    // Añadir el "Otros/Sin uso" al final
+    html += `
+    <div class="legend-item" style="display: flex; align-items: center; margin-bottom: 5px;">
+        <span style="background:${BUILDING_COLORS['default']}; width: 15px; height: 15px; display: inline-block; margin-right: 8px; border-radius: 3px; border: 1px solid #ccc;"></span>
+        <span style="font-size: 12px; color: #333;">${USAGE_LABELS['default']}</span>
+    </div>`;
+
+    container.innerHTML = html;
 }
 
-function buildObrasLegend() {
-    let html = '';
-    Object.keys(WORKS_COLORS).forEach(k => html += `<div class="legend-item"><span class="legend-color" style="background:${WORKS_COLORS[k]}"></span><span>${k}</span></div>`);
-    els.legContentObras.innerHTML = html;
-}
-
+// 2. LEYENDA DE IOT (Semáforo Calidad Aire)
 function buildIoTLegend() {
+    const container = document.getElementById('iot-legend-content');
+    if (!container) return;
+
     let html = '';
-    IOT_LEVELS.forEach(l => html += `<div class="legend-item"><span class="legend-color" style="background:${l.color};border-radius:50%"></span><span>${l.label}</span></div>`);
-    els.legContentIoT.innerHTML = html;
+    
+    // Iteramos sobre los niveles (Buena, Regular, Mala)
+    IOT_LEVELS.forEach(l => {
+        html += `
+        <div class="legend-item" style="display: flex; align-items: center; margin-bottom: 5px;">
+            <span style="background:${l.color}; width: 12px; height: 12px; display: inline-block; margin-right: 8px; border-radius: 50%; border: 1px solid #fff; box-shadow: 0 0 2px rgba(0,0,0,0.3);"></span>
+            <span style="font-size: 12px; color: #333;">${l.label}</span>
+        </div>`;
+    });
+
+    // Añadir pequeña nota de thresholds (umbrales)
+    html += `
+    <div style="margin-top: 8px; border-top: 1px solid #eee; padding-top: 5px; font-size: 10px; color: #777;">
+        <i>Umbrales: NO2 > 40 (Reg), > 90 (Mala)</i>
+    </div>
+    `;
+
+    container.innerHTML = html;
 }
 
+// 3. FUNCIÓN PARA MOSTRAR/OCULTAR SEGÚN CHECKBOX
 function updateLegendDisplay() {
-    const b = els.buildingsCheck.checked;
-    const w = els.obrasCheck.checked && map.getLayer('obras-fill');
-    const i = els.iotCheck.checked && map.getLayer('iot-layer');
+    // Referencias a los checkboxes
+    const bCheck = document.getElementById('buildings-checkbox');
+    const iCheck = document.getElementById('iot-checkbox');
+    
+    // Referencias a los DIVs de las leyendas (contenedores padres)
+    const bLegend = document.getElementById('building-legend');
+    const iLegend = document.getElementById('iot-legend');
 
-    els.legendContainer.style.display = (b || w || i) ? 'block' : 'none';
-    els.legWrapperBuildings.style.display = b ? 'block' : 'none';
-    els.legWrapperObras.style.display = w ? 'block' : 'none';
-    els.legWrapperIoT.style.display = i ? 'block' : 'none';
+    // Lógica simple: Si el checkbox está activo, mostramos la leyenda
+    if (bLegend) bLegend.style.display = (bCheck && bCheck.checked) ? 'block' : 'none';
+    if (iLegend) iLegend.style.display = (iCheck && iCheck.checked) ? 'block' : 'none';
 }
 
 // ==================================================================
@@ -479,8 +504,12 @@ els.obrasCheck.addEventListener('change', e => {
 });
 
 els.iotCheck.addEventListener('change', e => {
-    if(!map.getSource('iot-source')) loadIoTData();
-    else map.setLayoutProperty('iot-layer', 'visibility', e.target.checked?'visible':'none');
+    if(!map.getSource('iot-source')) {
+        loadIoTData(); // Esto llama internamente a buildIoTLegend
+    } else {
+        map.setLayoutProperty('iot-layer', 'visibility', e.target.checked ? 'visible' : 'none');
+    }
+    // Pequeño timeout para asegurar que si es la primera carga, el HTML ya exista
     updateLegendDisplay();
 });
 
