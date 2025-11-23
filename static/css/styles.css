@@ -84,13 +84,12 @@ body, html {
     flex-grow: 1;
     display: flex;
     justify-content: center;
-    margin: 0 20px;
 }
 
 .search-wrapper {
     position: relative;
     width: 100%;
-    max-width: 600px; 
+    max-width: 1000px; 
     display: flex;
     align-items: center;
 }
