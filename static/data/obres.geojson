@@ -1,12 +1,6 @@
 {
   "type": "FeatureCollection",
   "name": "Obras_Municipales_Viladecans",
-  "crs": {
-    "type": "name",
-    "properties": {
-      "name": "urn:ogc:def:crs:OGC:1.3:CRS84"
-    }
-  },
   "features": [
     {
       "type": "Feature",
@@ -65,9 +59,9 @@
       "properties": {
         "id_obra": "OBRA_Plaça_Saint_Herblain",
         "nombre": "Renaturalización y Nuevo Parque Infantil Plaça Saint Herblain",
-        "barrio": "Barri de Llevant",
+        "barrio": "Grup Sant Jordi",
         "imagen_render_url": "https://pbs.twimg.com/media/GRqubhxW4AAsr4X?format=jpg&name=large",
-        "bim_asset_id": "VLDC_OM_2024_0210_Plaza_V3.0.glb",
+        "bim_asset_id": null,
         "expediente_detalle": {
           "expediente_numero": "OM/2024/0210",
           "promotor": "Ayuntamiento de Viladecans (Urbanismo)",

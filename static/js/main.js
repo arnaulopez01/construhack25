@@ -263,29 +263,11 @@ function setupObrasInteractions() {
     map.on('mouseleave', 'obras-fill', () => map.getCanvas().style.cursor = '');
 
     map.on('click', 'obras-fill', (e) => {
-        const props = e.features[0].properties;
-        let det = props.expediente_detalle;
-        if (typeof det === 'string') { try { det = JSON.parse(det); } catch(e){ det={}; } }
-
-        const estado = det.estado_expediente || 'Desconocido';
-        const color = WORKS_COLORS[estado] || '#999';
-        const presu = det.presupuesto_ejecucion ? new Intl.NumberFormat('es-ES', { style: 'currency', currency: 'EUR' }).format(det.presupuesto_ejecucion) : '-';
-
-        const html = `
-            <div class="popup-header" style="background:${color}; color:white;">
-                <i class="fa-solid fa-helmet-safety"></i> ${estado}
-            </div>
-            <div class="popup-body">
-                <div style="font-weight:bold; margin-bottom:5px;">${props.nombre}</div>
-                <div class="popup-row"><span>Barrio:</span><span>${props.barrio}</span></div>
-                <div class="popup-row"><span>Presupuesto:</span><span>${presu}</span></div>
-                <div class="popup-row"><span>Plazo:</span><span>${det.plazo_ejecucion_dias} días</span></div>
-                <div style="margin-top:8px; font-size:11px; color:#666; border-top:1px solid #eee; padding-top:5px;">
-                    ${det.descripcion}
-                </div>
-            </div>`;
+        // Prevenimos que el click traspase a capas inferiores
+        e.originalEvent.preventDefault();
         
-        new maplibregl.Popup({className:'custom-popup', maxWidth:'320px'}).setLngLat(e.lngLat).setHTML(html).addTo(map);
+        const props = e.features[0].properties;
+        openObraModal(props); // <--- AQUÍ LLAMAMOS AL MODAL
     });
 }
 
@@ -896,6 +878,56 @@ async function loadSolarData() {
     } catch (err) {
         console.error("Error cargando Placas Solares:", err);
     }
+}
+
+// --- LÓGICA DEL MODAL DE OBRAS ---
+function openObraModal(props) {
+    // Parsear datos anidados si es necesario
+    let detalle = props.expediente_detalle;
+    if (typeof detalle === 'string') { try { detalle = JSON.parse(detalle); } catch (e) { detalle = {}; } }
+
+    // Rellenar textos
+    document.getElementById('modal-obra-nombre').innerText = props.nombre || 'Obra Municipal';
+    document.getElementById('modal-obra-id').innerText = `Ref: ${detalle.expediente_numero || props.id_obra || 'N/A'}`;
+    
+    // Estado y Badge
+    const estado = detalle.estado_expediente || 'Desconocido';
+    const badge = document.getElementById('modal-obra-badge');
+    badge.innerText = estado;
+    badge.style.backgroundColor = WORKS_COLORS[estado] || '#999';
+
+    // Imagen
+    const img = document.getElementById('modal-obra-img');
+    img.src = props.imagen_render_url || '';
+    
+    // Descripción y Datos
+    document.getElementById('modal-obra-desc').innerText = detalle.descripcion || 'Sin descripción disponible.';
+    
+    // Formatear Presupuesto
+    const presu = detalle.presupuesto_ejecucion 
+        ? new Intl.NumberFormat('es-ES', { style: 'currency', currency: 'EUR' }).format(detalle.presupuesto_ejecucion)
+        : '-';
+    
+    document.getElementById('modal-obra-presupuesto').innerText = presu;
+    document.getElementById('modal-obra-plazo').innerText = detalle.plazo_ejecucion_dias ? `${detalle.plazo_ejecucion_dias} días` : '-';
+    document.getElementById('modal-obra-promotor').innerText = detalle.promotor || '-';
+    document.getElementById('modal-obra-licencia').innerText = detalle.tipo_licencia || '-';
+    document.getElementById('modal-obra-materiales').innerText = detalle.materiales_clave || '-';
+
+    // Botón BIM (solo si hay ID)
+    const bimBtn = document.getElementById('modal-bim-container');
+    if (props.bim_asset_id) {
+        bimBtn.style.display = 'block';
+    } else {
+        bimBtn.style.display = 'none';
+    }
+
+    // Mostrar Modal
+    document.getElementById('obra-modal').style.display = 'flex';
+}
+
+function closeObraModal() {
+    document.getElementById('obra-modal').style.display = 'none';
 }
 
 initializeMap();

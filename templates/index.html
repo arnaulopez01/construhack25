@@ -97,6 +97,52 @@
 
     <div id="bim-popup" class="map-overlay" style="display: none; position: absolute; background: #2c3e50; color: white; padding: 10px; border-radius: 5px; z-index: 1000; pointer-events: none; max-width: 250px;"></div>
 
+    <!-- MODAL DE OBRAS -->
+    <div id="obra-modal" class="modal-overlay">
+        <div class="modal-container">
+            <div class="modal-header">
+                <div class="modal-title">
+                    <h2 id="modal-obra-nombre">Nombre de la Obra</h2>
+                    <div class="modal-subtitle">
+                        <span id="modal-obra-badge" class="status-badge">Estado</span>
+                        <span id="modal-obra-id" style="font-family:monospace;">ID: 0000</span>
+                    </div>
+                </div>
+                <button class="close-modal-btn" onclick="closeObraModal()"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            
+            <div class="modal-body">
+                <!-- Izquierda: Render -->
+                <div class="modal-image-section">
+                    <img id="modal-obra-img" src="" alt="Render" onerror="this.src='https://placehold.co/600x400?text=Sin+Imagen'">
+                </div>
+                
+                <!-- Derecha: Datos -->
+                <div class="modal-info-section">
+                    <div class="description-box">
+                        <span id="modal-obra-desc">Descripción...</span>
+                    </div>
+
+                    <div class="info-grid">
+                        <div class="info-item"><label>Presupuesto</label><span id="modal-obra-presupuesto">-</span></div>
+                        <div class="info-item"><label>Plazo</label><span id="modal-obra-plazo">-</span></div>
+                        <div class="info-item"><label>Promotor</label><span id="modal-obra-promotor">-</span></div>
+                        <div class="info-item"><label>Licencia</label><span id="modal-obra-licencia">-</span></div>
+                    </div>
+
+                    <div class="materials-section">
+                        <h4>Materiales Clave</h4>
+                        <div id="modal-obra-materiales" class="materials-list">-</div>
+                    </div>
+                    
+                    <div id="modal-bim-container" style="display:none;">
+                        <a href="#" class="bim-btn"><i class="fa-solid fa-cube"></i> Ver Modelo BIM</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <script src="https://unpkg.com/maplibre-gl@3.6.2/dist/maplibre-gl.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/proj4js/2.9.0/proj4.js"></script>
 
