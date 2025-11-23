@@ -543,6 +543,47 @@ if (solarCheck) {
     });
 }
 
+// ==================================================================
+// CONECTAR BOTÓN DEL MODAL CON EL CHECKBOX BIM
+// ==================================================================
+
+// Seleccionamos el enlace/botón dentro del modal
+const btnVerBimModal = document.querySelector('#modal-bim-container .bim-btn');
+
+if (btnVerBimModal) {
+    btnVerBimModal.addEventListener('click', (e) => {
+        e.preventDefault(); // Evita el comportamiento por defecto del enlace (#)
+
+        // 1. Cerramos el modal para que el usuario pueda ver el mapa
+        closeObraModal();
+
+        // 2. Obtenemos referencia al checkbox del menú lateral
+        const checkboxBim = document.getElementById('bim-checkbox');
+
+        if (checkboxBim) {
+            // CASO A: El checkbox NO está marcado
+            if (!checkboxBim.checked) {
+                // Lo marcamos visualmente
+                checkboxBim.checked = true;
+                
+                // IMPORTANTE: Forzamos el evento 'change' manualmente.
+                // Esto hará que se ejecute el listener que ya escribiste (cargar capa y volar cámara)
+                checkboxBim.dispatchEvent(new Event('change'));
+            } 
+            // CASO B: El checkbox YA estaba marcado (el usuario lo activó antes)
+            else {
+                // Solo movemos la cámara porque la capa ya está cargada
+                map.flyTo({
+                    center: [2.028238, 41.322620],
+                    zoom: 18,
+                    pitch: 60,
+                    bearing: -45
+                });
+            }
+        }
+    });
+}
+
 document.getElementById('heatmap-radius').addEventListener('input', e => map.setPaintProperty('poblacion-heatmap', 'heatmap-radius', parseFloat(e.target.value)));
 document.getElementById('heatmap-intensity').addEventListener('input', e => map.setPaintProperty('poblacion-heatmap', 'heatmap-intensity', parseFloat(e.target.value)));
 document.getElementById('toggle-3d').addEventListener('click', () => { const p=map.getPitch(); map.easeTo({pitch:p>0?0:60,bearing:p>0?0:-20}); });
