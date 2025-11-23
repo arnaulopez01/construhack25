@@ -12,8 +12,8 @@
       },
       "properties": {
         "nombre_ubicacion": "Viladecans, Barcelona",
-        "latitud": 41.3094,
-        "longitud": 2.0089,
+        "latitud": 41.30737255595148,
+        "longitud": 2.0088070159596723,
         "unidad": "Wh",
         "potencia_panel_wp": 450,
         "descripcion": "Estimación horaria de generación fotovoltaica para un día con buenas condiciones solares.",
