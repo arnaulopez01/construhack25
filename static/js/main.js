@@ -117,6 +117,7 @@ function initializeMap() {
         setupBaseLayers();
         setupCoreLayers(); // Edificios, Pob, Catastro
         buildStaticLegends();
+        updateLegendDisplay();
     });
 }
 
@@ -203,15 +204,109 @@ async function setupCoreLayers() {
         ];
 
         map.addLayer({
-            'id': 'edificios-layer', 'type': 'fill-extrusion', 'source': 'edificios-source',
-            'layout': { 'visibility': 'none' },
-            'paint': { 'fill-extrusion-color': colorExp, 'fill-extrusion-height': heightExp, 'fill-extrusion-opacity': 0.9 }
+            'id': 'edificios-layer', 
+            'type': 'fill-extrusion', 
+            'source': 'edificios-source',
+            // CAMBIO AQUÍ: De 'none' a 'visible'
+            'layout': { 'visibility': 'visible' }, 
+            'paint': { 
+                'fill-extrusion-color': colorExp, 
+                'fill-extrusion-height': heightExp, 
+                'fill-extrusion-opacity': 0.9 
+            }
         });
 
         setupBuildingInteractions();
         console.log("✅ Edificios cargados correctamente.");
 
     } catch (err) { console.error("❌ Error cargando Edificios:", err); }
+}
+
+// ==========================================
+// FUNCIÓN MEJORADA: POPUP EDIFICIOS PREMIUM
+// ==========================================
+function setupBuildingInteractions() {
+    
+    // 1. Cursor pointer
+    map.on('mouseenter', 'edificios-layer', () => map.getCanvas().style.cursor = 'pointer');
+    map.on('mouseleave', 'edificios-layer', () => map.getCanvas().style.cursor = '');
+
+    // 2. Click en edificios
+    map.on('click', 'edificios-layer', (e) => {
+        const p = e.features[0].properties;
+        
+        // --- PREPARACIÓN DE DATOS ---
+        
+        // Color según uso (fallback a gris)
+        const colorBase = BUILDING_COLORS[p.currentUse] || BUILDING_COLORS.default;
+        const usoTexto = USAGE_LABELS[p.currentUse] || 'Uso Desconocido';
+
+        // Año de construcción (parsear "1965-01-01T00:00:00")
+        let anyo = '-';
+        if (p.beginning) {
+            anyo = p.beginning.split('-')[0]; // Nos quedamos solo con el año
+            if (anyo.startsWith('--')) anyo = 'Desconocido';
+        }
+
+        // Superficie
+        const superficie = p.value ? new Intl.NumberFormat('es-ES').format(Math.round(p.value)) : '0';
+
+        // Estado de conservación (Traducción simple)
+        const estadoMap = { 'functional': 'Funcional', 'declined': 'Deteriorado', 'ruin': 'Ruina' };
+        const estado = estadoMap[p.conditionOfConstruction] || p.conditionOfConstruction || '-';
+
+        // Foto de fachada (Link del Catastro)
+        // Nota: Catastro usa HTTP a veces, si tu web es HTTPS el navegador podría bloquear la imagen mixta.
+        // Intentamos usar el link directo. Si no hay link, usamos un placeholder.
+        const fotoUrl = p.documentLink || '';
+        
+        // Link a Sede Electrónica
+        const catastroLink = p.informationSystem || '#';
+
+
+        // --- HTML TEMPLATE ---
+        const html = `
+            <div class="building-card">
+                <div class="building-image" style="background-image: url('${fotoUrl}');">
+                    <div class="usage-badge" style="border-bottom: 3px solid #989898">
+                        ${usoTexto}
+                    </div>
+                </div>
+
+                <div class="building-info">
+                    <div class="ref-catastral">REF: ${p.reference || 'N/A'}</div>
+                    
+                    <div class="stats-row">
+                        <div class="stat-item">
+                            <span class="stat-value">${superficie}</span>
+                            <span class="stat-label">m² Const.</span>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-value">${anyo}</span>
+                            <span class="stat-label">Año</span>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-value">${estado}</span>
+                            <span class="stat-label">Estado</span>
+                        </div>
+                    </div>
+
+                    <a href="${catastroLink}" target="_blank" class="btn-catastro">
+                        <i class="fa-solid fa-landmark"></i> Ver en Catastro
+                    </a>
+                </div>
+            </div>
+        `;
+            
+        new maplibregl.Popup({
+            className: 'building-popup-content', // Clase CSS personalizada que definimos arriba
+            maxWidth: '300px',
+            closeButton: true
+        })
+        .setLngLat(e.lngLat)
+        .setHTML(html)
+        .addTo(map);
+    });
 }
 
 // ==================================================================
@@ -831,17 +926,19 @@ async function loadCamerasData() {
 // 11. ENERGÍA SOLAR Y ECHARTS
 // ==================================================================
 
+// Variable global para el gráfico (asegúrate de que esté fuera de la función)
+let solarChartInstance = null;
+
 async function loadSolarData() {
+    // Si ya cargamos los datos, no hacemos nada (evitar duplicados)
     if (map.getSource('solar-source')) return;
 
     try {
-        // 1. Cargar GeoJSON
         const response = await fetch('static/data/plaques.geojson');
         const data = await response.json();
 
         map.addSource('solar-source', { 'type': 'geojson', 'data': data });
 
-        // 2. Añadir capa visual (Círculo Amarillo Brillante)
         map.addLayer({
             'id': 'solar-layer',
             'type': 'circle',
@@ -849,105 +946,130 @@ async function loadSolarData() {
             'layout': { 'visibility': 'visible' },
             'paint': {
                 'circle-radius': 10,
-                'circle-color': '#FFD600', // Amarillo Solar
+                'circle-color': '#FFD600',
                 'circle-stroke-width': 2,
                 'circle-stroke-color': '#FFFFFF',
                 'circle-opacity': 0.9
             }
         });
 
-        // 3. Interacciones
+        // 1. CURSOR (MANITA) - Puesto explícitamente aquí para no depender de helpers
         map.on('mouseenter', 'solar-layer', () => map.getCanvas().style.cursor = 'pointer');
         map.on('mouseleave', 'solar-layer', () => map.getCanvas().style.cursor = '');
 
+        // 2. EVENTO CLICK - ESTA ES LA CLAVE
         map.on('click', 'solar-layer', (e) => {
-            const props = e.features[0].properties;
+            // Aseguramos que se pare la propagación para que no afecte a otras cosas
+            e.originalEvent.preventDefault();
             
-            // MapLibre a veces convierte arrays en strings dentro de properties. 
-            // Nos aseguramos de parsearlo si viene como texto.
-            let timeSeries = props.serie_temporal;
-            if (typeof timeSeries === 'string') {
-                timeSeries = JSON.parse(timeSeries);
+            if (e.features.length > 0) {
+                const props = e.features[0].properties;
+                // Llamamos a la función de abrir el modal
+                openSolarModal(props); 
             }
-
-            // Preparar datos para ECharts
-            const horas = timeSeries.map(item => {
-                // Convertir "2025-06-21T06:00:00+02:00" a "06:00"
-                const date = new Date(item.hora);
-                return date.getHours().toString().padStart(2, '0') + ':00';
-            });
-            const valores = timeSeries.map(item => item.generacion);
-
-            // Generar ID único para el gráfico
-            const chartId = `chart-solar-${Date.now()}`;
-
-            // HTML del Popup
-            const html = `
-                <div class="popup-header" style="background:#FBC02D; color:#333;">
-                    <i class="fa-solid fa-solar-panel"></i> ${props.nombre_ubicacion}
-                </div>
-                <div class="popup-body" style="padding: 10px;">
-                    <div style="font-size: 12px; color: #666; margin-bottom: 5px;">
-                        Potencia Instalada: <b>${props.potencia_panel_wp} Wp</b>
-                    </div>
-                    <div id="${chartId}" style="width: 320px; height: 200px;"></div>
-                    <div style="font-size: 10px; text-align: center; color: #999;">
-                        ${props.descripcion}
-                    </div>
-                </div>
-            `;
-
-            // Crear el Popup
-            new maplibregl.Popup({ className: 'custom-popup', maxWidth: '360px' })
-                .setLngLat(e.lngLat)
-                .setHTML(html)
-                .addTo(map);
-
-            // 4. INICIALIZAR ECHARTS
-            // IMPORTANTE: Usamos un pequeño timeout para asegurar que el HTML 
-            // del popup ya se ha renderizado en el DOM antes de que ECharts intente buscar el ID.
-            setTimeout(() => {
-                const chartDom = document.getElementById(chartId);
-                if (chartDom) {
-                    const myChart = echarts.init(chartDom);
-                    const option = {
-                        grid: { top: 30, right: 10, bottom: 20, left: 40 },
-                        tooltip: { 
-                            trigger: 'axis',
-                            formatter: '{b}: {c} Wh'
-                        },
-                        xAxis: {
-                            type: 'category',
-                            data: horas,
-                            axisLabel: { fontSize: 9 }
-                        },
-                        yAxis: {
-                            type: 'value',
-                            name: 'Wh',
-                            axisLabel: { fontSize: 9 }
-                        },
-                        series: [{
-                            data: valores,
-                            type: 'line',
-                            smooth: true,
-                            areaStyle: {
-                                color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
-                                    { offset: 0, color: 'rgba(255, 214, 0, 0.8)' },
-                                    { offset: 1, color: 'rgba(255, 214, 0, 0.1)' }
-                                ])
-                            },
-                            lineStyle: { color: '#FBC02D' },
-                            itemStyle: { color: '#FBC02D' }
-                        }]
-                    };
-                    myChart.setOption(option);
-                }
-            }, 100); // 100ms de espera
         });
 
+        console.log("✅ Datos solares cargados y click activado.");
+
     } catch (err) {
-        console.error("Error cargando Placas Solares:", err);
+        console.error("❌ Error cargando Placas Solares:", err);
     }
+}
+
+// ==========================================
+// FUNCIONES DEL MODAL SOLAR (FALTABAN ESTAS)
+// ==========================================
+
+function openSolarModal(props) {
+    console.log("Abriendo modal solar...", props); // Log para depurar
+    
+    // 1. Rellenar Textos
+    document.getElementById('modal-solar-nombre').innerText = props.nombre_ubicacion || 'Placa Solar';
+    document.getElementById('modal-solar-potencia').innerText = (props.potencia_panel_wp || 0) + ' Wp';
+    document.getElementById('modal-solar-desc').innerText = props.descripcion || 'Sin información adicional.';
+
+    // 2. Mostrar el Modal
+    document.getElementById('solar-modal').style.display = 'flex';
+
+    // 3. Procesar Datos para el Gráfico
+    let timeSeries = props.serie_temporal;
+    if (typeof timeSeries === 'string') {
+        try { timeSeries = JSON.parse(timeSeries); } catch (e) { timeSeries = []; }
+    }
+
+    // Si no hay datos temporales, evitamos error en map
+    if (!timeSeries || !Array.isArray(timeSeries)) {
+        timeSeries = [];
+    }
+
+    const horas = timeSeries.map(item => {
+        const date = new Date(item.hora);
+        return date.getHours().toString().padStart(2, '0') + ':00';
+    });
+    const valores = timeSeries.map(item => item.generacion);
+
+    // 4. Inicializar ECharts
+    setTimeout(() => {
+        const chartDom = document.getElementById('modal-solar-chart-container');
+        if (!chartDom) return;
+
+        // Destruir instancia anterior si existe
+        if (solarChartInstance != null) {
+            solarChartInstance.dispose();
+        }
+
+        solarChartInstance = echarts.init(chartDom);
+
+        const option = {
+            grid: { top: 30, right: 20, bottom: 20, left: 50, containLabel: true },
+            tooltip: { 
+                trigger: 'axis',
+                formatter: '{b}: <b>{c} Wh</b>'
+            },
+            xAxis: {
+                type: 'category',
+                data: horas,
+                axisLine: { lineStyle: { color: '#ccc' } }
+            },
+            yAxis: {
+                type: 'value',
+                name: 'Energía (Wh)',
+                splitLine: { lineStyle: { type: 'dashed' } }
+            },
+            series: [{
+                data: valores,
+                type: 'line',
+                smooth: true,
+                symbol: 'none',
+                areaStyle: {
+                    color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
+                        { offset: 0, color: 'rgba(255, 214, 0, 0.6)' },
+                        { offset: 1, color: 'rgba(255, 214, 0, 0.0)' }
+                    ])
+                },
+                lineStyle: { color: '#FFD600', width: 3 }
+            }]
+        };
+
+        solarChartInstance.setOption(option);
+        
+        window.addEventListener('resize', resizeSolarChart);
+
+    }, 100);
+}
+
+function resizeSolarChart() {
+    if (solarChartInstance) solarChartInstance.resize();
+}
+
+function closeSolarModal() {
+    document.getElementById('solar-modal').style.display = 'none';
+    
+    if (solarChartInstance) {
+        solarChartInstance.dispose();
+        solarChartInstance = null;
+    }
+    window.removeEventListener('resize', resizeSolarChart);
 }
 
 // --- LÓGICA DEL MODAL DE OBRAS ---

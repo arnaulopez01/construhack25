@@ -42,7 +42,7 @@
             <label class="layer-option"><input type="radio" name="base-layer" value="esri-topo"> Topográfico</label>
             <hr>
             <h4>Capas Temáticas</h4>
-            <label class="layer-option"><input type="checkbox" id="buildings-checkbox"> Edificios (3D)</label>
+            <label class="layer-option"><input type="checkbox" id="buildings-checkbox" checked> Edificios (3D)</label>
             <label class="layer-option"><input type="checkbox" id="population-points-checkbox"> Población (Puntos)</label>
             <label class="layer-option"><input type="checkbox" id="population-heatmap-checkbox"> Población (Calor)</label>
             <hr>
@@ -138,6 +138,31 @@
                     <div id="modal-bim-container" style="display:none;">
                         <a href="#" class="bim-btn"><i class="fa-solid fa-cube"></i> Ver Modelo BIM</a>
                     </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="solar-modal" class="modal-overlay">
+        <div class="modal-container" style="border-top: 5px solid #FFD600;"> <div class="modal-header">
+                <div class="modal-title">
+                    <h2 id="modal-solar-nombre">Nombre Instalación</h2>
+                    <div class="modal-subtitle">
+                        <i class="fa-solid fa-bolt" style="color:#FFD600;"></i>
+                        <span id="modal-solar-potencia">0 kWp</span>
+                    </div>
+                </div>
+                <button class="close-modal-btn" onclick="closeSolarModal()"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            
+            <div class="modal-body" style="display:block;">
+                <div class="description-box" id="modal-solar-desc" style="margin-bottom: 20px;">
+                    Descripción de la instalación...
+                </div>
+
+                <div style="background: #f8f9fa; padding: 10px; border-radius: 8px; border: 1px solid #eee;">
+                    <h4 style="margin: 0 0 10px 0; font-size: 0.9rem; color: #666;">Curva de Generación (Últimas 24h)</h4>
+                    <div id="modal-solar-chart-container" style="width: 100%; height: 300px;"></div>
                 </div>
             </div>
         </div>

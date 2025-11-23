@@ -436,6 +436,150 @@ hr { border: 0; border-top: 1px solid #eee; margin: 12px 0; }
     background: #0f172a; color: white; text-decoration: none; border-radius: 6px; font-size: 0.9rem;
 }
 .bim-btn:hover { background: #334155; }
+/* =========================================
+   POPUP EDIFICIOS "PREMIUM" (CORREGIDO)
+   ========================================= */
+
+/* 1. Ajustamos el contenedor de MapLibre */
+.building-popup-content {
+    max-width: 300px !important; /* Ancho máximo externo */
+}
+
+/* 2. Ajustamos la caja blanca interna */
+.building-popup-content .maplibregl-popup-content {
+    padding: 0 !important;
+    border-radius: 12px;
+    overflow: hidden; /* Esto recorta cualquier cosa que se salga */
+    box-shadow: 0 10px 25px rgba(0,0,0,0.3);
+    border: none;
+    width: 300px !important; /* Forzamos ancho fijo para evitar el corte */
+    box-sizing: border-box;  /* CRUCIAL: Incluye bordes en el cálculo del ancho */
+}
+
+/* 3. Botón de cerrar (Aseguramos que no se salga) */
+.building-popup-content .maplibregl-popup-close-button {
+    color: white;
+    font-size: 18px;
+    background: rgba(0,0,0,0.4);
+    border-radius: 50%;
+    width: 28px;
+    height: 28px;
+    top: 8px;
+    right: 8px; /* Un poco más de margen derecha */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 10; /* Siempre encima */
+    border: 1px solid rgba(255,255,255,0.6);
+    transition: background 0.2s;
+}
+
+.building-popup-content .maplibregl-popup-close-button:hover {
+    background: rgba(0,0,0,0.7);
+}
+
+/* 4. La tarjeta interna ahora se adapta al 100% del padre */
+.building-card {
+    font-family: 'Segoe UI', sans-serif;
+    width: 100%; /* CAMBIO: Antes era 280px fijo, ahora llena el espacio */
+    box-sizing: border-box;
+    position: relative;
+}
+
+/* Cabecera con Imagen */
+.building-image {
+    height: 150px; /* Un pelín más alta para lucir mejor */
+    width: 100%;
+    background-size: cover;
+    background-position: center;
+    position: relative;
+    background-color: #e0e0e0;
+}
+
+/* Etiqueta de USO */
+.usage-badge {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    padding: 6px 15px;
+    color: white;
+    font-weight: 600;
+    font-size: 0.85rem;
+    background: linear-gradient(to top, rgba(0,0,0,0.8), rgba(0,0,0,0)); /* Degradado para leer mejor */
+    text-shadow: 0 1px 2px rgba(0,0,0,0.8);
+    display: flex;
+    align-items: flex-end;
+    height: 40px;
+}
+
+/* Cuerpo de datos */
+.building-info {
+    padding: 15px;
+    background: white;
+}
+
+.ref-catastral {
+    font-size: 0.75rem;
+    color: #888;
+    margin-bottom: 8px;
+    font-family: 'Consolas', monospace;
+    letter-spacing: 0.5px;
+    border-bottom: 1px solid #eee;
+    padding-bottom: 5px;
+}
+
+/* Grid de datos */
+.stats-row {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 15px;
+    gap: 5px;
+}
+
+.stat-item {
+    text-align: center;
+    flex: 1;
+    background: #f8f9fa; /* Fondo gris suave para cada dato */
+    padding: 8px 4px;
+    border-radius: 6px;
+}
+
+.stat-value {
+    display: block;
+    font-weight: 700;
+    font-size: 0.95rem;
+    color: #2c3e50;
+}
+.stat-label {
+    font-size: 0.7rem;
+    color: #666;
+    text-transform: uppercase;
+    margin-top: 2px;
+    display: block;
+}
+
+/* Botón Catastro */
+.btn-catastro {
+    display: block;
+    width: 100%;
+    padding: 10px 0;
+    background-color: #e0e0e0;
+    color: rgb(0, 0, 0);
+    text-align: center;
+    text-decoration: none;
+    border-radius: 6px;
+    font-weight: 600;
+    font-size: 0.9rem;
+    transition: all 0.2s;
+    box-shadow: 0 2px 5px rgba(180, 180, 180, 0.3);
+}
+
+.btn-catastro:hover {
+    background-color: #989898;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 8px rgba(142, 142, 142, 0.4);
+}
 
 @keyframes slideUp {
     from { transform: translate(-50%, 100%); opacity: 0; }
